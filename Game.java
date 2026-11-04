@@ -1,4 +1,4 @@
-
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -6,7 +6,7 @@ import java.util.Scanner;
  * the player's activities and rank-based upgrades.
  *
  * @author Katelyn & Shaira
- * @version 1.0
+ * @version 1.2
  */
 public class Game {
 
@@ -160,6 +160,7 @@ public class Game {
         System.out.println("\n========== MAIN MENU ==========");
         System.out.println("1. Travel");
         System.out.println("2. Search Candies");
+        System.out.println("3. View Orders");
         System.out.println("0. Quit Game");
         System.out.println("===============================");
     }
@@ -176,6 +177,9 @@ public class Game {
         }
         else if (choice == 2) {
             searchCandies();
+        }
+        else if (choice == 3) {
+            viewOrders();
         }
         else if (choice == 0) {
             quitGame();
@@ -324,7 +328,61 @@ public class Game {
     
         System.out.println("====================================");
     }
-
+    /**
+     * Displays all accessible house orders, including their
+     * coordinates, required candies, quantities, and XP rewards.
+     */
+    public void viewOrders() {
+    
+        System.out.println("\n========== VIEW ORDERS ==========");
+    
+        ArrayList<House> houses = world.getHouses();
+    
+        if (houses.isEmpty()) {
+            System.out.println("There are currently no available house orders.");
+        }
+        else {
+    
+            for (House house : houses) {
+    
+                System.out.println("\n" + house.getName());
+    
+                System.out.println("Coordinates: (" +
+                        house.getRow() + ", " + house.getColumn() + ")");
+    
+                System.out.println("Required Candies:");
+    
+                Candy[] requiredCandies = house.getRequiredCandies();
+                int[] requiredQuantities = house.getRequiredQuantities();
+    
+                for (int i = 0; i < requiredCandies.length; i++) {
+    
+                    Candy candy = requiredCandies[i];
+    
+                    String candyName = candy.getCandyType();
+                    String flavor = candy.getCandyFlavor();
+    
+                    if ("Any".equalsIgnoreCase(flavor)) {
+                        candyName += " (any flavor)";
+                    }
+                    else if (flavor != null &&
+                            !flavor.equalsIgnoreCase("N/A")) {
+                        candyName += " (" + flavor + ")";
+                    }
+    
+                    System.out.println("- " + requiredQuantities[i] +
+                            "x " + candyName);
+                }
+    
+                System.out.println("XP Reward: " + house.getXPReward() + " XP");
+                System.out.println("Delivery Status: " +
+                        (house.isDelivered() ? "Completed" : "Pending"));
+            }
+        }
+    
+        System.out.println("=================================");
+    }
+    
     // ==========================================
     // GENERAL GAME GETTERS
     // ==========================================
