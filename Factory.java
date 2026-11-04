@@ -12,8 +12,8 @@ public class Factory extends Building {
     /** The two-dimensional grid containing the factory's candies. */
     private Candy[][] productionGrid;
 
-    /** The types of candies that this factory is allowed to produce. */
-    private String[] allowedCandyTypes;
+    /** The candies and flavors that this factory is allowed to produce. */
+    private Candy[] allowedCandies;
 
     /** The current dimension of the square production grid. */
     private int gridSize;
@@ -25,15 +25,15 @@ public class Factory extends Building {
      * @param name the name of the factory
      * @param row the row coordinate of the factory
      * @param column the column coordinate of the factory
-     * @param allowedCandyTypes the candy types this factory can produce
+     * @param allowedCandies the candy types this factory can produce
      * @param gridSize the initial dimension of the production grid
      */
     public Factory(String name, int row, int column,
-                   String[] allowedCandyTypes, int gridSize) {
+                   Candy[] allowedCandies, int gridSize) {
 
         super(name, row, column, 'F');
 
-        this.allowedCandyTypes = allowedCandyTypes;
+        this.allowedCandies = allowedCandies;
         this.gridSize = gridSize;
         this.productionGrid = new Candy[gridSize][gridSize];
     }
@@ -83,7 +83,43 @@ public class Factory extends Building {
      *
      * @return the current allowed candy types
      */
-    public String[] getAllowedCandyTypes() {
-        return allowedCandyTypes;
+    public Candy[] getAllowedCandies() {
+        return allowedCandies;
     } 
+
+    /**
+     * Checks whether the factory produces the specified candy type.
+     *
+     * @param candyType the type of candy to search for
+     * @return true if the factory produces the candy type; false otherwise
+     */
+    public boolean producesCandy(String candyType) {
+        for (Candy candy : allowedCandies) {
+            if (candy.getCandyType().equalsIgnoreCase(candyType.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether the factory produces the specified candy type and flavor.
+     *
+     * @param candyType the type of candy to search for
+     * @param candyFlavor the flavor of candy to search for
+     * @return true if the factory produces the specified candy; false otherwise
+     */
+    public boolean producesCandy(String candyType, String candyFlavor) {
+        for (Candy candy : allowedCandies) {
+
+            if (candy.getCandyType().equalsIgnoreCase(candyType.trim()) &&
+                candy.getCandyFlavor().equalsIgnoreCase(candyFlavor.trim())) {
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
 }
