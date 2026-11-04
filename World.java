@@ -4,9 +4,11 @@
  * Manages the world size, building placement, building retrieval,
  * and world expansion.
  *
- * @author Member 1
- * @version 1.0
+ * @author Katelyn and Shaira
+ * @version 1.1
  */
+import java.util.Arraylist;
+
 public class World {
 
     // ==========================================
@@ -19,6 +21,27 @@ public class World {
     /** The current dimension of the square world grid. */
     private int gridSize;
 
+    /**
+    * Return all factories currently placed in the world
+    *
+    * @return a list of all the factories in the world
+    */
+    public ArrayList<Factory> getFactories() {
+        ArrayList<Factory> factories = new ArrayList<>();
+        
+        for (int row = 0; row < gridSize; row++) {
+            for (int column = 0; column < gridSize; column++) {
+
+                Building building = grid[row][column];
+
+                if (building instanceof Factory) {
+                    factories.add((Factory) building);
+                }
+            }
+        }
+        return factories; 
+    }
+        
 
     // ==========================================
     // CONSTRUCTOR
