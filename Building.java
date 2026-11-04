@@ -54,6 +54,24 @@ public class Building {
     }
 
     /**
+     * Returns the row position of the building.
+     *
+     * @return the row coordinate
+     */
+    public int getRow() {
+        return row;
+    }
+    
+    /**
+     * Returns the column position of the building.
+     *
+     * @return the column coordinate
+     */
+    public int getColumn() {
+        return column;
+    }
+
+    /**
      * Updates the building's position in the world grid.
      *
      * @param row the new row position
