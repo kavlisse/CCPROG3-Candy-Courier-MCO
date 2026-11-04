@@ -18,7 +18,6 @@ public class Factory extends Building {
     /** The current dimension of the square production grid. */
     private int gridSize;
 
-
     /**
      * Constructs a Factory with the specified name, location,
      * allowed candy types, and production grid size.
@@ -79,4 +78,12 @@ public class Factory extends Building {
         return gridSize;
     }
 
+    /**
+     * Returns the current allowed candy types
+     *
+     * @return the current allowed candy types
+     */
+    public String[] getAllowedCandyTypes() {
+        return allowedCandyTypes;
+    } 
 }
