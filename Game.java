@@ -29,6 +29,8 @@ public class Game {
     /** Scanner used to receive player input. */
     private Scanner input;
 
+    /** The highest rank for which houses have already been initialized. */
+    private int highestHouseRankAdded = -1;
 
     // ==========================================
     // CONSTRUCTOR
@@ -381,6 +383,271 @@ public class Game {
         }
     
         System.out.println("=================================");
+    }
+
+    /**
+     * Initializes houses according to the player's current star rank.
+     * Prevents houses from being placed more than once.
+     */
+    private void initializeNewHouses() {
+    
+        int currentRank = Math.min(player.getStarRank(), 4);
+    
+        for (int rank = highestHouseRankAdded + 1;
+             rank <= currentRank; rank++) {
+    
+            placeHousesForRank(rank);
+    
+            highestHouseRankAdded = rank;
+        }
+    }
+
+    /**
+     * Places the houses introduced at the specified rank.
+     *
+     * @param rank the rank at which the houses are introduced
+     */
+    private void placeHousesForRank(int rank) {
+    
+        int introductionGridSize = 7 + (rank * 2);
+    
+        int offset = (world.getGridSize() - introductionGridSize) / 2;
+    
+        switch (rank) {
+    
+            case 0:
+                // House A
+                placeHouse("House A", 1, 1,
+                    new Candy[] {
+                        new Candy("Candy Corn"),
+                        new Candy("Gummy", "Any"),
+                        new Candy("Lollipop", "Any"),
+                        new Candy("Marshmallow", "Any")
+                    },
+                    new int[] {4, 2, 2, 2},
+                    100, offset
+                );
+            
+                // House B
+                placeHouse("House B", 5, 2,
+                    new Candy[] {
+                        new Candy("Candy Corn")
+                    },
+                    new int[] {15},
+                    150, offset
+                );
+            
+                // House C
+                placeHouse("House C", 3, 6,
+                    new Candy[] {
+                        new Candy("Gummy", "Any"),
+                        new Candy("Marshmallow", "Any"),
+                        new Candy("Pastillas", "Any"),
+                        new Candy("Yema", "Any"),
+                        new Candy("Polvoron", "Any")
+                    },
+                    new int[] {5, 5, 5, 5, 5},
+                    250, offset
+                );
+                break;
+    
+            case 1:
+                // House D
+                 placeHouse("House D", 8, 6,
+                        new Candy[] {
+                        new Candy("Candy Corn"),
+                        new Candy("Candy Cane"),
+                        new Candy("Pastillas", "Any"),
+                        new Candy("Yema", "Any"),
+                        new Candy("Polvoron", "Any")
+                    },
+                    new int[] {5, 5, 10, 10, 10},
+                    400, offset
+                );
+                break;
+    
+            case 2:
+                // House E, F, G, and H
+                placeHouse("House E", 0, 6,
+                    new Candy[] {
+                    new Candy("Candy Corn"),
+                    new Candy("Yema", "Any"),
+                    new Candy("Pastillas", "Any"),
+                    new Candy("Lollipop", "Ube"),
+                    new Candy("Lollipop", "Macapuno")
+                },
+                new int[] {10, 5, 5, 5, 5},
+                300, offset
+            );
+        
+            // House F
+            placeHouse("House F", 10, 1,
+                    new Candy[] {
+                    new Candy("Gummy", "Tablea"),
+                    new Candy("Marshmallow", "Tablea"),
+                    new Candy("Pastillas", "Tablea"),
+                    new Candy("Polvoron", "Tablea")
+                },
+                new int[] {7, 7, 8, 8},
+                300, offset
+            );
+        
+            // House G
+            placeHouse("House G", 4, 0,
+                    new Candy[] {
+                    new Candy("Pastillas", "Any"),
+                    new Candy("Pastillas", "Durian"),
+                    new Candy("Pastillas", "Jackfruit")
+                },
+                new int[] {20, 10, 10},
+                400, offset
+            );
+        
+            // House H
+            placeHouse("House H", 6, 10,
+                    new Candy[] {
+                    new Candy("Polvoron", "Any"),
+                    new Candy("Yema", "Any"),
+                    new Candy("Pastillas", "Any"),
+                    new Candy("Gummy", "Mango"),
+                    new Candy("Marshmallow", "Pandan")
+                },
+                new int[] {10, 5, 5, 5, 5},
+                300, offset
+            );
+                break;
+    
+            case 3:
+                // House I, J, K, L, and M
+                 // House I
+            placeHouse("House I", 0, 3,
+                    new Candy[] {
+                    new Candy("Lollipop", "Jackfruit"),
+                    new Candy("Lollipop", "Durian"),
+                    new Candy("Lollipop", "Pandan"),
+                    new Candy("Lollipop", "Ube"),
+                    new Candy("Lollipop", "Macapuno")
+                },
+                new int[] {9, 9, 9, 9, 9},
+                450, offset
+            );
+        
+            // House J
+            placeHouse("House J", 3, 0,
+                    new Candy[] {
+                    new Candy("Candy Corn"),
+                    new Candy("Marshmallow", "Mango"),
+                    new Candy("Yema", "Mango"),
+                    new Candy("Pastillas", "Mango"),
+                    new Candy("Gummy", "Mango")
+                },
+                new int[] {5, 6, 7, 8, 9},
+                350, offset
+            );
+        
+            // House K
+            placeHouse("House K", 9, 0,
+                    new Candy[] {
+                    new Candy("Gummy", "Ube"),
+                    new Candy("Gummy", "Mango"),
+                    new Candy("Gummy", "Macapuno"),
+                    new Candy("Gummy", "Pandan")
+                },
+                new int[] {10, 10, 10, 10},
+                400, offset
+            );
+        
+            // House L
+            placeHouse("House L", 12, 5,
+                    new Candy[] {
+                    new Candy("Pastillas", "Ube"),
+                    new Candy("Yema", "Ube"),
+                    new Candy("Polvoron", "Ube")
+                },
+                new int[] {10, 10, 10},
+                300, offset
+            );
+        
+            // House M
+            placeHouse("House M", 12, 12,
+                    new Candy[] {
+                    new Candy("Pastillas", "Pandan"),
+                    new Candy("Yema", "Pandan"),
+                    new Candy("Polvoron", "Pandan")
+                },
+                new int[] {10, 10, 10},
+                300, offset
+            );
+                break;
+    
+            case 4:
+                // House N, O, and P
+                // House N
+            placeHouse("House N", 3, 14,
+                    new Candy[] {
+                    new Candy("Candy Cane"),
+                    new Candy("Polvoron", "Jackfruit"),
+                    new Candy("Polvoron", "Durian"),
+                    new Candy("Lollipop", "Tablea")
+                },
+                new int[] {16, 3, 3, 3},
+                250, offset
+            );
+        
+            // House O
+            placeHouse("House O", 14, 0,
+                    new Candy[] {
+                    new Candy("Candy Cane"),
+                    new Candy("Candy Corn")
+                },
+                new int[] {100, 10},
+                1000, offset
+            );
+        
+            // House P
+            placeHouse("House P", 14, 10,
+                    new Candy[] {
+                    new Candy("Candy Corn"),
+                    new Candy("Candy Cane"),
+                    new Candy("Pastillas", "Macapuno"),
+                    new Candy("Yema", "Macapuno"),
+                    new Candy("Polvoron", "Macapuno")
+                },
+                new int[] {5, 5, 5, 5, 5},
+                250, offset
+            );
+                break;
+        }
+    }
+    
+    /**
+     * Creates and places a house in the world.
+     *
+     * @param name the name of the house
+     * @param row the introduction row coordinate
+     * @param column the introduction column coordinate
+     * @param candies the candies required by the house
+     * @param quantities the required quantity of each candy
+     * @param xp the XP reward for completing the order
+     * @param offset the coordinate adjustment caused by world expansion
+     */
+    private void placeHouse(String name, int row, int column,
+                            Candy[] candies, int[] quantities,
+                            int xp, int offset) {
+    
+        int actualRow = row + offset;
+        int actualColumn = column + offset;
+    
+        House house = new House(
+            name,
+            actualRow,
+            actualColumn,
+            candies,
+            quantities,
+            xp
+        );
+    
+        world.placeBuilding(house, actualRow, actualColumn);
     }
     
     // ==========================================
