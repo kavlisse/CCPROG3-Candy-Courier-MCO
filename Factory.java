@@ -4,8 +4,8 @@
  * Manages the candy production grid and expands its dimensions
  * when the player reaches a higher star rank.
  *
- * @author Member 1
- * @version 1.0
+ * @author Katelyn and Shaira
+ * @version 1.1
  */
 public class Factory extends Building {
 
