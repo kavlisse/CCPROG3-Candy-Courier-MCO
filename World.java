@@ -1,4 +1,3 @@
-
 /**
  * Represents the world grid in the Candy Courier game.
  * Manages the world size, building placement, building retrieval,
@@ -41,7 +40,28 @@ public class World {
         }
         return factories; 
     }
-        
+
+    /**
+     * Returns all houses currently placed in the world.
+     *
+     * @return a list of all houses in the world
+     */
+    public ArrayList<House> getHouses() {
+    
+        ArrayList<House> houses = new ArrayList<>();
+    
+        for (int row = 0; row < gridSize; row++) {
+            for (int column = 0; column < gridSize; column++) {
+    
+                Building building = grid[row][column];
+    
+                if (building instanceof House) {
+                    houses.add((House) building);
+                }
+            }
+        }
+        return houses;
+    }
 
     // ==========================================
     // CONSTRUCTOR
