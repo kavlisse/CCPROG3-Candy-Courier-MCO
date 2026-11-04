@@ -159,6 +159,7 @@ public class Game {
 
         System.out.println("\n========== MAIN MENU ==========");
         System.out.println("1. Travel");
+        System.out.println("2. Search Candies");
         System.out.println("0. Quit Game");
         System.out.println("===============================");
     }
@@ -172,6 +173,9 @@ public class Game {
 
         if (choice == 1) {
             handleTravel();
+        }
+        else if (choice == 2) {
+            searchCandies();
         }
         else if (choice == 0) {
             quitGame();
@@ -281,6 +285,45 @@ public class Game {
         }
     }
 
+    /**
+     * Allows the player to search for candies and displays
+     * the factories that produce the specified candy.
+     */
+    public void searchCandies() {
+
+        System.out.println("\n========== SEARCH CANDIES ==========");
+
+        System.out.print("Enter candy type: ");
+        String candyType = input.nextLine().trim();
+    
+        System.out.print("Enter candy flavor (leave blank for any flavor): ");
+        String candyFlavor = input.nextLine().trim();
+    
+        boolean found = false;
+
+        for (Factory factory : world.getFactories()) {
+    
+            boolean matches;
+    
+            if (candyFlavor.isEmpty()) {
+                matches = factory.producesCandy(candyType);
+            }
+            else {
+                matches = factory.producesCandy(candyType, candyFlavor);
+            }
+    
+            if (matches) {
+                System.out.println("Found in: " + factory.getName());
+                found = true;
+            }
+        }
+    
+        if (!found) {
+            System.out.println("No factories produce the specified candy.");
+        }
+    
+        System.out.println("====================================");
+    }
 
     // ==========================================
     // GENERAL GAME GETTERS
