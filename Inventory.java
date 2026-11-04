@@ -5,7 +5,7 @@
  * as their star rank increases.
  *
  * @author Katelyn and Shaira
- * @version 1.2
+ * @version 1.1
  */
 import java.util.ArrayList; 
 
@@ -131,9 +131,6 @@ public class Inventory {
         }
 
         return removedCount;
-    }
-
-    
-    
+    } 
 
 }
