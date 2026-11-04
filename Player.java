@@ -27,7 +27,7 @@ public class Player {
 
 
     // ==========================================
-    // TRAVEL AND MOVEMENT ATTRIBUTES
+    // TASK 2: TRAVEL AND MOVEMENT ATTRIBUTES
     // ==========================================
 
     /** The player's current row position in the world grid. */
@@ -211,7 +211,7 @@ public class Player {
 
     /**
      * Attempts to move the player in the specified direction.
-     * The player can only move one tile at a time.
+     * Diagonal movement is only available to players with at least 3 stars.
      *
      * @param direction the direction of movement
      * @param worldSize the dimension of the world grid
@@ -222,6 +222,7 @@ public class Player {
         int newRow = row;
         int newColumn = column;
 
+        // Vertical and horizontal movement
         if (direction.equalsIgnoreCase("up")) {
             newRow--;
         }
@@ -232,6 +233,40 @@ public class Player {
             newColumn--;
         }
         else if (direction.equalsIgnoreCase("right")) {
+            newColumn++;
+        }
+
+        // Diagonal movement (unlocked at 3 stars)
+        else if (direction.equalsIgnoreCase("up-left")) {
+            if (!canMoveDiagonally()) {
+                System.out.println("Diagonal movement is locked. Reach 3 stars to unlock it.");
+                return false;
+            }
+            newRow--;
+            newColumn--;
+        }
+        else if (direction.equalsIgnoreCase("up-right")) {
+            if (!canMoveDiagonally()) {
+                System.out.println("Diagonal movement is locked. Reach 3 stars to unlock it.");
+                return false;
+            }
+            newRow--;
+            newColumn++;
+        }
+        else if (direction.equalsIgnoreCase("down-left")) {
+            if (!canMoveDiagonally()) {
+                System.out.println("Diagonal movement is locked. Reach 3 stars to unlock it.");
+                return false;
+            }
+            newRow++;
+            newColumn--;
+        }
+        else if (direction.equalsIgnoreCase("down-right")) {
+            if (!canMoveDiagonally()) {
+                System.out.println("Diagonal movement is locked. Reach 3 stars to unlock it.");
+                return false;
+            }
+            newRow++;
             newColumn++;
         }
         else {

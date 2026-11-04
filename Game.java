@@ -1,40 +1,33 @@
 
+import java.util.Scanner;
+
 /**
- * Represents the player in the Candy Courier game.
- * Stores the player's information, handles XP accumulation,
- * rank progression, and player movement.
+ * Controls the Candy Courier game and coordinates
+ * the player's activities and rank-based upgrades.
  *
  * @author Katelyn & Shaira
  * @version 1.0
  */
-public class Player {
+public class Game {
 
     // ==========================================
-    // GENERAL PLAYER ATTRIBUTES
+    // GENERAL GAME ATTRIBUTES
     // ==========================================
 
-    /** The name of the player. */
-    private String name;
+    /** The player participating in the game. */
+    private Player player;
 
-    /** The total experience points accumulated by the player. */
-    private int totalXP;
+    /** The world in which the player travels. */
+    private World world;
 
-    /** The current star rank of the player, ranging from 0 to 5. */
-    private int starRank;
+    /** The current day number. */
+    private int dayNum;
 
-    /** The inventory owned by the player. */
-    private Inventory inventory;
+    /** Indicates whether the game is currently running. */
+    private boolean isRunning;
 
-
-    // ==========================================
-    // TRAVEL AND MOVEMENT ATTRIBUTES
-    // ==========================================
-
-    /** The player's current row position in the world grid. */
-    private int row;
-
-    /** The player's current column position in the world grid. */
-    private int column;
+    /** Scanner used to receive player input. */
+    private Scanner input;
 
 
     // ==========================================
@@ -42,20 +35,78 @@ public class Player {
     // ==========================================
 
     /**
-     * Constructs a new Player with an initial XP of 0,
-     * a rank of 0 stars, and an inventory capacity of 20.
+     * Constructs a new game with the initial world size,
+     * day number, and running status.
+     */
+    public Game() {
+        this.world = new World(7);
+        this.dayNum = 1;
+        this.isRunning = true;
+        this.input = new Scanner(System.in);
+    }
+
+
+    // ==========================================
+    // GAME INITIALIZATION
+    // ==========================================
+
+    /**
+     * Starts the game by asking for the player's name
+     * and displaying the initial world and main menu.
+     */
+    public void startGame() {
+
+        System.out.println("================================");
+        System.out.println("       CANDY COURIER");
+        System.out.println("================================");
+
+        System.out.print("Enter your player name: ");
+        String name = input.nextLine();
+
+        initializePlayer(name);
+
+        while (isRunning) {
+
+            System.out.println("\n================================");
+            System.out.println("DAY " + dayNum);
+            System.out.println("================================");
+
+            world.displayWorld(player);
+            displayMainMenu();
+
+            System.out.print("Enter your choice: ");
+
+            String choiceInput = input.nextLine();
+
+            try {
+                int choice = Integer.parseInt(choiceInput);
+                handleMenuChoice(choice);
+            }
+            catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
+        }
+    }
+
+    /**
+     * Initializes the player and places the player's home
+     * at the center of the initial world grid.
      *
      * @param name the name of the player
      */
-    public Player(String name) {
-        this.name = name;
-        this.totalXP = 0;
-        this.starRank = 0;
-        this.inventory = new Inventory(20);
+    public void initializePlayer(String name) {
 
-        // Starting position is assigned by the Game class.
-        this.row = 0;
-        this.column = 0;
+        this.player = new Player(name);
+
+        int center = world.getGridSize() / 2;
+
+        player.updatePosition(center, center);
+
+        PlayerHome home = new PlayerHome(center, center);
+
+        world.placeBuilding(home, center, center);
+
+        updateRankUnlocks();
     }
 
 
@@ -64,115 +115,33 @@ public class Player {
     // ==========================================
 
     /**
-     * Adds experience points to the player's total XP
-     * and checks whether the player qualifies for promotion.
-     *
-     * @param xp the amount of experience points earned
+     * Updates the world, factory grids, and inventory capacity
+     * according to the player's current star rank.
      */
-    public void addXP(int xp) {
-        if (xp > 0) {
-            totalXP += xp;
-            checkRankProgression();
-        }
-    }
+    public void updateRankUnlocks() {
 
-    /**
-     * Checks the player's total XP and updates their star rank
-     * according to the required promotion thresholds.
-     *
-     * Rank requirements:
-     * 1 star - 100 XP
-     * 2 stars - 500 XP
-     * 3 stars - 1400 XP
-     * 4 stars - 3000 XP
-     * 5 stars - 5500 XP
-     */
-    public void checkRankProgression() {
+        if (player != null) {
 
-        if (totalXP >= 5500) {
-            starRank = 5;
-        }
-        else if (totalXP >= 3000) {
-            starRank = 4;
-        }
-        else if (totalXP >= 1400) {
-            starRank = 3;
-        }
-        else if (totalXP >= 500) {
-            starRank = 2;
-        }
-        else if (totalXP >= 100) {
-            starRank = 1;
-        }
-    }
+            int oldSize = world.getGridSize();
+            int newSize = player.getWorldGridSize();
 
-    /**
-     * Returns the world grid dimension based on the player's current rank.
-     *
-     * @return the world grid dimension
-     */
-    public int getWorldGridSize() {
+            int offset = (newSize - oldSize) / 2;
 
-        if (starRank == 0) {
-            return 7;
-        }
-        else if (starRank == 1) {
-            return 9;
-        }
-        else if (starRank == 2) {
-            return 11;
-        }
-        else if (starRank == 3) {
-            return 13;
-        }
-        else {
-            return 15;
-        }
-    }
+            world.expandWorld(newSize);
 
-    /**
-     * Returns the candy production grid dimension based on the player's rank.
-     *
-     * @return the factory grid dimension, up to 10
-     */
-    public int getFactoryGridSize() {
-        if (starRank >= 4) {
-            return 10;
+            // Adjust the player's coordinates after world expansion.
+            if (newSize > oldSize) {
+                player.updatePosition(
+                        player.getRow() + offset,
+                        player.getColumn() + offset);
+            }
+
+            world.expandAllFactoryGrids(
+                    player.getFactoryGridSize());
+
+            player.getInventory().setCapacity(
+                    player.getInventoryCapacity());
         }
-
-        return 6 + starRank;
-    }
-
-    /**
-     * Returns the maximum inventory capacity based on the player's rank.
-     *
-     * @return the inventory capacity, up to 100
-     */
-    public int getInventoryCapacity() {
-        if (starRank >= 4) {
-            return 100;
-        }
-
-        return 20 + (starRank * 20);
-    }
-
-    /**
-     * Checks whether the player has unlocked diagonal movement.
-     *
-     * @return true if the player has reached at least 3 stars;
-     *         false otherwise
-     */
-    public boolean canMoveDiagonally() {
-        return starRank >= 3;
-    }
-
-    /**
-     * Checks whether the player has reached the maximum star rank.
-     *
-     * @return true if the player has reached 5 stars; false otherwise
-     */
-    public boolean hasReachedMaxRank() {
-        return starRank == 5;
     }
 
 
@@ -181,122 +150,208 @@ public class Player {
     // ==========================================
 
     /**
-     * Updates the player's current position in the world grid.
+     * Displays the main menu.
      *
-     * @param newRow the new row position
-     * @param newColumn the new column position
+     * Travel is currently implemented.
+     * Other game options will be added in their respective tasks.
      */
-    public void updatePosition(int newRow, int newColumn) {
-        this.row = newRow;
-        this.column = newColumn;
+    public void displayMainMenu() {
+
+        System.out.println("\n========== MAIN MENU ==========");
+        System.out.println("1. Travel");
+        System.out.println("0. Quit Game");
+        System.out.println("===============================");
     }
 
     /**
-     * Returns the player's current row position.
+     * Processes the player's main menu selection.
      *
-     * @return the current row
+     * @param choice the selected menu option
      */
-    public int getRow() {
-        return row;
-    }
+    public void handleMenuChoice(int choice) {
 
-    /**
-     * Returns the player's current column position.
-     *
-     * @return the current column
-     */
-    public int getColumn() {
-        return column;
-    }
-
-    /**
-     * Attempts to move the player in the specified direction.
-     * The player can only move one tile at a time.
-     *
-     * @param direction the direction of movement
-     * @param worldSize the dimension of the world grid
-     * @return true if the movement is successful; false otherwise
-     */
-    public boolean move(String direction, int worldSize) {
-
-        int newRow = row;
-        int newColumn = column;
-
-        if (direction.equalsIgnoreCase("up")) {
-            newRow--;
+        if (choice == 1) {
+            handleTravel();
         }
-        else if (direction.equalsIgnoreCase("down")) {
-            newRow++;
-        }
-        else if (direction.equalsIgnoreCase("left")) {
-            newColumn--;
-        }
-        else if (direction.equalsIgnoreCase("right")) {
-            newColumn++;
+        else if (choice == 0) {
+            quitGame();
         }
         else {
-            System.out.println("Invalid movement direction.");
-            return false;
+            System.out.println("Invalid menu option. Please try again.");
         }
+    }
 
-        // Prevent movement outside the world boundaries.
-        if (newRow < 0 || newRow >= worldSize ||
-            newColumn < 0 || newColumn >= worldSize) {
+    /**
+     * Displays the available travel directions and
+     * allows the player to move around the world.
+     *
+     * Diagonal movement is only available at 3 stars or higher.
+     */
+    public void handleTravel() {
 
-            System.out.println("You cannot move beyond the world boundaries.");
-            System.out.println("Current position: (" + row + ", " + column + ")");
-            return false;
+        boolean traveling = true;
+
+        while (traveling) {
+
+            System.out.println("\n========== TRAVEL ==========");
+            System.out.println("Current position: (" +
+                    player.getRow() + ", " + player.getColumn() + ")");
+
+            System.out.println("1. Up");
+            System.out.println("2. Down");
+            System.out.println("3. Left");
+            System.out.println("4. Right");
+
+            if (player.canMoveDiagonally()) {
+
+                System.out.println("\nDiagonal Movement Unlocked!");
+                System.out.println("5. Up-Left");
+                System.out.println("6. Up-Right");
+                System.out.println("7. Down-Left");
+                System.out.println("8. Down-Right");
+            }
+
+            System.out.println("0. Return to Main Menu");
+            System.out.println("============================");
+
+            System.out.print("Choose a direction: ");
+
+            String choiceInput = input.nextLine();
+
+            try {
+
+                int choice = Integer.parseInt(choiceInput);
+
+                String direction = "";
+
+                switch (choice) {
+
+                    case 1:
+                        direction = "up";
+                        break;
+
+                    case 2:
+                        direction = "down";
+                        break;
+
+                    case 3:
+                        direction = "left";
+                        break;
+
+                    case 4:
+                        direction = "right";
+                        break;
+
+                    case 5:
+                        direction = "up-left";
+                        break;
+
+                    case 6:
+                        direction = "up-right";
+                        break;
+
+                    case 7:
+                        direction = "down-left";
+                        break;
+
+                    case 8:
+                        direction = "down-right";
+                        break;
+
+                    case 0:
+                        traveling = false;
+                        System.out.println("Returning to the main menu.");
+                        continue;
+
+                    default:
+                        System.out.println("Invalid travel option.");
+                        continue;
+                }
+
+                // Attempt the movement using the Player class.
+                player.move(direction, world.getGridSize());
+
+                // Display the updated world after every attempt.
+                world.displayWorld(player);
+
+            }
+            catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
         }
-
-        // Update the player's position after a successful move.
-        row = newRow;
-        column = newColumn;
-
-        System.out.println("You moved " + direction.toLowerCase() + ".");
-        System.out.println("New position: (" + row + ", " + column + ")");
-
-        return true;
     }
 
 
     // ==========================================
-    // GENERAL PLAYER GETTERS
+    // GENERAL GAME GETTERS
     // ==========================================
 
     /**
-     * Returns the player's name.
+     * Returns the current player.
      *
-     * @return the player's name
+     * @return the player
      */
-    public String getName() {
-        return name;
+    public Player getPlayer() {
+        return player;
     }
 
     /**
-     * Returns the player's total accumulated XP.
+     * Returns the current world.
      *
-     * @return the player's total XP
+     * @return the world
      */
-    public int getTotalXP() {
-        return totalXP;
+    public World getWorld() {
+        return world;
     }
 
     /**
-     * Returns the player's current star rank.
+     * Returns the current day number.
      *
-     * @return the player's star rank
+     * @return the current day
      */
-    public int getStarRank() {
-        return starRank;
+    public int getDayNum() {
+        return dayNum;
     }
 
     /**
-     * Returns the player's inventory.
+     * Returns whether the game is currently running.
      *
-     * @return the player's inventory
+     * @return true if the game is running; false otherwise
      */
-    public Inventory getInventory() {
-        return inventory;
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+
+    // ==========================================
+    // GAME EXIT
+    // ==========================================
+
+    /**
+     * Ends the current game session.
+     */
+    public void quitGame() {
+
+        isRunning = false;
+
+        System.out.println("\nThank you for playing Candy Courier!");
+        System.out.println("Game session ended.");
+    }
+
+
+    // ==========================================
+    // MAIN METHOD
+    // ==========================================
+
+    /**
+     * Main entry point of the Candy Courier game.
+     *
+     * @param args command-line arguments
+     */
+    public static void main(String[] args) {
+
+        Game game = new Game();
+        game.startGame();
     }
 
 }
