@@ -4,7 +4,7 @@
  * Stores the building's name, position, and identifying symbol.
  *
  * @author Katelyn & Shaira
- * @version 1.0
+ * @version 1.1
  */
 public class Building {
 
@@ -35,6 +35,15 @@ public class Building {
         this.symbol = symbol;
     }
 
+    /** 
+    * Returns the name of the building
+    *
+    * @return the building name
+    */
+    public String getName() {
+        return name;
+    }
+    
     /**
      * Returns the building's identifying symbol.
      *
