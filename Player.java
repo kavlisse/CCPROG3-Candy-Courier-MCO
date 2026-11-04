@@ -1,13 +1,17 @@
 
 /**
  * Represents the player in the Candy Courier game.
- * Stores the player's name, total experience points, and current star rank.
- * Handles XP accumulation, rank progression, and rank-based unlocks.
+ * Stores the player's information, handles XP accumulation,
+ * rank progression, and player movement.
  *
- * @author Katelyn & Shaira 
+ * @author Katelyn & Shaira
  * @version 1.0
  */
 public class Player {
+
+    // ==========================================
+    // GENERAL PLAYER ATTRIBUTES
+    // ==========================================
 
     /** The name of the player. */
     private String name;
@@ -20,9 +24,26 @@ public class Player {
 
     /** The inventory owned by the player. */
     private Inventory inventory;
-    
+
+
+    // ==========================================
+    // TRAVEL AND MOVEMENT ATTRIBUTES
+    // ==========================================
+
+    /** The player's current row position in the world grid. */
+    private int row;
+
+    /** The player's current column position in the world grid. */
+    private int column;
+
+
+    // ==========================================
+    // CONSTRUCTOR
+    // ==========================================
+
     /**
-     * Constructs a new Player with an initial XP of 0 and a rank of 0 stars.
+     * Constructs a new Player with an initial XP of 0,
+     * a rank of 0 stars, and an inventory capacity of 20.
      *
      * @param name the name of the player
      */
@@ -31,8 +52,16 @@ public class Player {
         this.totalXP = 0;
         this.starRank = 0;
         this.inventory = new Inventory(20);
+
+        // Starting position is assigned by the Game class.
+        this.row = 0;
+        this.column = 0;
     }
 
+
+    // ==========================================
+    // TASK 1: STAR-RANKING SYSTEM
+    // ==========================================
 
     /**
      * Adds experience points to the player's total XP
@@ -46,7 +75,6 @@ public class Player {
             checkRankProgression();
         }
     }
-
 
     /**
      * Checks the player's total XP and updates their star rank
@@ -78,7 +106,6 @@ public class Player {
         }
     }
 
-
     /**
      * Returns the world grid dimension based on the player's current rank.
      *
@@ -103,8 +130,6 @@ public class Player {
         }
     }
 
-
-
     /**
      * Returns the candy production grid dimension based on the player's rank.
      *
@@ -117,7 +142,6 @@ public class Player {
 
         return 6 + starRank;
     }
-
 
     /**
      * Returns the maximum inventory capacity based on the player's rank.
@@ -132,7 +156,6 @@ public class Player {
         return 20 + (starRank * 20);
     }
 
-
     /**
      * Checks whether the player has unlocked diagonal movement.
      *
@@ -142,7 +165,6 @@ public class Player {
     public boolean canMoveDiagonally() {
         return starRank >= 3;
     }
-
 
     /**
      * Checks whether the player has reached the maximum star rank.
@@ -154,6 +176,93 @@ public class Player {
     }
 
 
+    // ==========================================
+    // TASK 2: TRAVEL AND MOVEMENT
+    // ==========================================
+
+    /**
+     * Updates the player's current position in the world grid.
+     *
+     * @param newRow the new row position
+     * @param newColumn the new column position
+     */
+    public void updatePosition(int newRow, int newColumn) {
+        this.row = newRow;
+        this.column = newColumn;
+    }
+
+    /**
+     * Returns the player's current row position.
+     *
+     * @return the current row
+     */
+    public int getRow() {
+        return row;
+    }
+
+    /**
+     * Returns the player's current column position.
+     *
+     * @return the current column
+     */
+    public int getColumn() {
+        return column;
+    }
+
+    /**
+     * Attempts to move the player in the specified direction.
+     * The player can only move one tile at a time.
+     *
+     * @param direction the direction of movement
+     * @param worldSize the dimension of the world grid
+     * @return true if the movement is successful; false otherwise
+     */
+    public boolean move(String direction, int worldSize) {
+
+        int newRow = row;
+        int newColumn = column;
+
+        if (direction.equalsIgnoreCase("up")) {
+            newRow--;
+        }
+        else if (direction.equalsIgnoreCase("down")) {
+            newRow++;
+        }
+        else if (direction.equalsIgnoreCase("left")) {
+            newColumn--;
+        }
+        else if (direction.equalsIgnoreCase("right")) {
+            newColumn++;
+        }
+        else {
+            System.out.println("Invalid movement direction.");
+            return false;
+        }
+
+        // Prevent movement outside the world boundaries.
+        if (newRow < 0 || newRow >= worldSize ||
+            newColumn < 0 || newColumn >= worldSize) {
+
+            System.out.println("You cannot move beyond the world boundaries.");
+            System.out.println("Current position: (" + row + ", " + column + ")");
+            return false;
+        }
+
+        // Update the player's position after a successful move.
+        row = newRow;
+        column = newColumn;
+
+        System.out.println("You moved " + direction.toLowerCase() + ".");
+        System.out.println("New position: (" + row + ", " + column + ")");
+
+        return true;
+    }
+
+
+    // ==========================================
+    // GENERAL PLAYER GETTERS
+    // ==========================================
+
     /**
      * Returns the player's name.
      *
@@ -162,7 +271,6 @@ public class Player {
     public String getName() {
         return name;
     }
-
 
     /**
      * Returns the player's total accumulated XP.
@@ -173,7 +281,6 @@ public class Player {
         return totalXP;
     }
 
-
     /**
      * Returns the player's current star rank.
      *
@@ -183,7 +290,6 @@ public class Player {
         return starRank;
     }
 
-    
     /**
      * Returns the player's inventory.
      *
@@ -193,5 +299,4 @@ public class Player {
         return inventory;
     }
 
-    
 }
