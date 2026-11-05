@@ -1,7 +1,6 @@
 
 /**
- * Tests the integration of the Star-Ranking System
- * with the Game, World, Factory, and Inventory classes.
+ * Tests the XP and star-ranking system of Candy Courier.
  *
  * @author Katelyn & Shaira
  * @version 1.0
@@ -9,65 +8,103 @@
 public class GameRankTest {
 
     /**
-     * Runs the Star-Ranking integration tests.
+     * Tests XP thresholds, star ranks, world sizes,
+     * factory sizes, inventory capacity, and unlocks.
      *
      * @param args command-line arguments
      */
     public static void main(String[] args) {
 
-        Game game = new Game();
-        game.initializePlayer("Courier");
+        System.out.println("=================================");
+        System.out.println(" CANDY COURIER - RANK TESTS");
+        System.out.println("=================================");
 
-        Player player = game.getPlayer();
+        testRank(0, 0, 7, 6, 20);
+        testRank(99, 0, 7, 6, 20);
+        testRank(100, 1, 9, 7, 40);
+        testRank(499, 1, 9, 7, 40);
+        testRank(500, 2, 11, 8, 60);
+        testRank(1399, 2, 11, 8, 60);
+        testRank(1400, 3, 13, 9, 80);
+        testRank(2999, 3, 13, 9, 80);
+        testRank(3000, 4, 15, 10, 100);
+        testRank(5499, 4, 15, 10, 100);
+        testRank(5500, 5, 15, 10, 100);
 
-        Factory factory = new Factory(
-            "Test Factory",
-            0,
-            0,
-            new String[]{"Chocolate", "Strawberry"},
-            6
-        );
+        testDiagonalMovement();
+        testMaximumRank();
 
-        int[] xpGains = {100, 400, 900, 1600, 2500};
+        System.out.println("=================================");
+        System.out.println(" RANK TESTING COMPLETED");
+        System.out.println("=================================");
+    }
 
-        System.out.println("STAR-RANKING INTEGRATION TEST");
+    /**
+     * Tests the player's rank and corresponding upgrades.
+     *
+     * @param xp the XP to award
+     * @param expectedRank the expected star rank
+     * @param expectedWorld the expected world size
+     * @param expectedFactory the expected factory grid size
+     * @param expectedInventory the expected inventory capacity
+     */
+    public static void testRank(int xp, int expectedRank,
+                                int expectedWorld, int expectedFactory,
+                                int expectedInventory) {
 
-        displayResults(game, factory);
+        Player player = new Player("Tester");
+        player.addXP(xp);
 
-        for (int xp : xpGains) {
+        boolean passed =
+            player.getStarRank() == expectedRank &&
+            player.getWorldGridSize() == expectedWorld &&
+            player.getFactoryGridSize() == expectedFactory &&
+            player.getInventoryCapacity() == expectedInventory;
 
-            player.addXP(xp);
-            game.updateRankUnlocks();
-
-            factory.expandProductionGrid(
-                player.getFactoryGridSize()
-            );
-
-            displayResults(game, factory);
+        if (passed) {
+            System.out.println("[PASS] " + xp + " XP - "
+                + expectedRank + " stars");
+        } else {
+            System.out.println("[FAIL] " + xp + " XP");
+            System.out.println("Actual rank: " + player.getStarRank());
+            System.out.println("Actual world: " + player.getWorldGridSize());
+            System.out.println("Actual factory: " + player.getFactoryGridSize());
+            System.out.println("Actual inventory: " + player.getInventoryCapacity());
         }
     }
 
     /**
-     * Displays the current upgrade values of each object.
-     *
-     * @param game the game being tested
-     * @param factory the factory being tested
+     * Tests whether diagonal movement unlocks at 3 stars.
      */
-    public static void displayResults(Game game, Factory factory) {
+    public static void testDiagonalMovement() {
 
-        Player player = game.getPlayer();
+        Player player = new Player("Tester");
 
-        System.out.println("---------------------------");
-        System.out.println("Total XP: " + player.getTotalXP());
-        System.out.println("Star Rank: " + player.getStarRank());
-        System.out.println("World Grid: "
-                + game.getWorld().getGridSize() + "x"
-                + game.getWorld().getGridSize());
-        System.out.println("Factory Grid: "
-                + factory.getGridSize() + "x"
-                + factory.getGridSize());
-        System.out.println("Inventory Capacity: "
-                + player.getInventory().getCapacity());
-        System.out.println();
+        player.addXP(1399);
+        boolean locked = !player.canMoveDiagonally();
+
+        player.addXP(1);
+        boolean unlocked = player.canMoveDiagonally();
+
+        if (locked && unlocked) {
+            System.out.println("[PASS] Diagonal movement unlock");
+        } else {
+            System.out.println("[FAIL] Diagonal movement unlock");
+        }
+    }
+
+    /**
+     * Tests whether the player reaches the maximum rank at 5500 XP.
+     */
+    public static void testMaximumRank() {
+
+        Player player = new Player("Tester");
+        player.addXP(5500);
+
+        if (player.hasReachedMaxRank()) {
+            System.out.println("[PASS] Maximum rank");
+        } else {
+            System.out.println("[FAIL] Maximum rank");
+        }
     }
 }

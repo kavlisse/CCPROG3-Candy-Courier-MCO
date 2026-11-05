@@ -18,7 +18,7 @@ public class Candy {
     *
     * @param candyType the type of candy
     */
-    private Candy(String candyType) {
+    public Candy(String candyType) {
         this(candyType, "N/A");
     }
     

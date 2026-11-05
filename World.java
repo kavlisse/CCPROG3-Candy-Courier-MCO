@@ -6,7 +6,7 @@
  * @author Katelyn and Shaira
  * @version 1.1
  */
-import java.util.Arraylist;
+import java.util.ArrayList;
 
 public class World {
 
@@ -21,24 +21,26 @@ public class World {
     private int gridSize;
 
     /**
-    * Return all factories currently placed in the world
-    *
-    * @return a list of all the factories in the world
-    */
+     * Returns all factories currently placed in the world.
+     *
+     * @return a list of all factories in the world
+     */
     public ArrayList<Factory> getFactories() {
+
         ArrayList<Factory> factories = new ArrayList<>();
-        
+
         for (int row = 0; row < gridSize; row++) {
             for (int column = 0; column < gridSize; column++) {
 
                 Building building = grid[row][column];
 
-                if (building instanceof Factory) {
+                if (building != null && building.getSymbol() == 'F') {
                     factories.add((Factory) building);
                 }
             }
         }
-        return factories; 
+
+        return factories;
     }
 
     /**
@@ -47,19 +49,20 @@ public class World {
      * @return a list of all houses in the world
      */
     public ArrayList<House> getHouses() {
-    
+
         ArrayList<House> houses = new ArrayList<>();
-    
+
         for (int row = 0; row < gridSize; row++) {
             for (int column = 0; column < gridSize; column++) {
-    
+
                 Building building = grid[row][column];
-    
-                if (building instanceof House) {
+
+                if (building != null && building.getSymbol() == 'D') {
                     houses.add((House) building);
                 }
             }
         }
+
         return houses;
     }
 
