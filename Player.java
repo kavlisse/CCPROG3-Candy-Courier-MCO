@@ -8,10 +8,6 @@
  */
 public class Player {
 
-    // ==========================================
-    // GENERAL PLAYER ATTRIBUTES
-    // ==========================================
-
     /** The name of the player. */
     private String name;
 
@@ -29,7 +25,7 @@ public class Player {
 
 
     // ==========================================
-    // TASK 2: TRAVEL AND MOVEMENT ATTRIBUTES
+    // TRAVEL AND MOVEMENT ATTRIBUTES
     // ==========================================
 
     /** The player's current row position in the world grid. */
@@ -63,7 +59,7 @@ public class Player {
 
 
     // ==========================================
-    // TASK 1: STAR-RANKING SYSTEM
+    // STAR-RANKING SYSTEM
     // ==========================================
 
     /**
@@ -180,7 +176,7 @@ public class Player {
 
 
     // ==========================================
-    // TASK 2: TRAVEL AND MOVEMENT
+    // TRAVEL AND MOVEMENT
     // ==========================================
 
     /**

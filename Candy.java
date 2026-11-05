@@ -10,7 +10,8 @@ public class Candy {
 
     /** The type of candy. */
     private String candyType;
-    /** The flacor of the candy*/
+
+    /** The flavor of the candy*/
     private String candyFlavor;
 
     /** 

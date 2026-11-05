@@ -1,4 +1,7 @@
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
 
 /**
  * Comprehensive automated tests for the Candy Courier game.
@@ -56,6 +59,9 @@ public class GameIntegrationTest {
         // TASK 6: PLAYER'S HOME
         testPlayerHomeNoChoice();
         testPlayerHomeYesChoice();
+
+        // TASK 7: END GAME
+        testEndGame();
 
         // Final results
         System.out.println("\n======================================");
@@ -746,5 +752,119 @@ public class GameIntegrationTest {
 
         return null;
     }
+
+        // ==========================================
+        // TASK 7: END GAME
+        // ==========================================
+
+        /**
+         * Tests the conditions required for the game to end
+         * and verifies that the final player statistics are displayed.
+         */
+        public static void testEndGame() {
+
+        System.out.println("\n--- END GAME ---");
+
+        // TEST 1: Reaching 5 stars is not enough if a house is pending.
+        Game rankFivePending = new Game();
+        rankFivePending.initializePlayer("Tester");
+
+        rankFivePending.awardXP(5500);
+
+        ArrayList<House> houses =
+                rankFivePending.getWorld().getHouses();
+
+        check("All 16 houses are available at 5 stars",
+                houses.size() == 16);
+
+        // Mark all houses as delivered except the last one.
+        for (int i = 0; i < houses.size() - 1; i++) {
+                houses.get(i).setDelivered(true);
+        }
+
+        // Recheck the completion condition.
+        rankFivePending.awardXP(0);
+
+        check("Game continues when one house is still pending",
+                rankFivePending.isRunning());
+
+
+        // TEST 2: Completing all deliveries is not enough without 5 stars.
+        Game allDeliveredNotFive = new Game();
+        allDeliveredNotFive.initializePlayer("Tester");
+
+        allDeliveredNotFive.awardXP(5499);
+
+        houses = allDeliveredNotFive.getWorld().getHouses();
+
+        for (House house : houses) {
+                house.setDelivered(true);
+        }
+
+        // Recheck the completion condition.
+        allDeliveredNotFive.awardXP(0);
+
+        check("Game continues when the player has not reached 5 stars",
+                allDeliveredNotFive.isRunning());
+
+
+        // TEST 3: The game ends when both conditions are satisfied.
+        Game completedGame = new Game();
+        completedGame.initializePlayer("Katelyn");
+
+        completedGame.awardXP(5500);
+
+        houses = completedGame.getWorld().getHouses();
+
+        for (House house : houses) {
+                house.setDelivered(true);
+        }
+
+        // Capture the final game output.
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        PrintStream originalOutput = System.out;
+
+        System.setOut(new PrintStream(output));
+
+        completedGame.awardXP(0);
+
+        System.setOut(originalOutput);
+
+        String finalOutput = output.toString();
+
+        check("Game ends when the player has 5 stars and all 16 deliveries are complete",
+                !completedGame.isRunning());
+
+        check("Final output congratulates the player",
+                finalOutput.contains("CONGRATULATIONS, Katelyn!"));
+
+        check("Final output confirms completion of all deliveries",
+                finalOutput.contains("You have completed every delivery!"));
+
+
+        // TEST 4: The final player statistics are displayed.
+        check("Final output displays the player's name",
+                finalOutput.contains("Player Name: Katelyn"));
+
+        check("Final output displays total XP",
+                finalOutput.contains("Total XP: 5500"));
+
+        check("Final output displays maximum rank XP status",
+                finalOutput.contains("XP Needed for Next Rank: Maximum rank reached!"));
+
+        check("Final output displays the 5-star rank",
+                finalOutput.contains("Star Rank: 5-star"));
+
+        check("Final output displays total steps traveled",
+                finalOutput.contains("Total Steps Traveled: "
+                        + completedGame.getPlayer().getTotalSteps()));
+
+        check("Final output displays the day number",
+                finalOutput.contains("Day Number: "
+                        + completedGame.getDayNum()));
+
+        check("Final output displays the end-game thank-you message",
+                finalOutput.contains("Thank you for playing Candy Courier!"));
+        }
 
 }

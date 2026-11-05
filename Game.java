@@ -130,7 +130,7 @@ public class Game {
 
 
     // ==========================================
-    // TASK 1: STAR-RANKING SYSTEM
+    // STAR-RANKING SYSTEM
     // ==========================================
 
     /**
@@ -254,7 +254,7 @@ public class Game {
 
     
     // ==========================================
-    // TASK 1: FACTORY INITIALIZATION
+    // FACTORY INITIALIZATION
     // ==========================================
 
     /**
@@ -264,10 +264,6 @@ public class Game {
     public void initializeFactories() {
 
         int rank = player.getStarRank();
-
-        // ==========================================
-        // 0-STAR FACTORIES
-        // ==========================================
 
         if (rank >= 0 && highestFactoryRankAdded < 0) {
 
@@ -295,10 +291,6 @@ public class Game {
             highestFactoryRankAdded = 0;
         }
 
-        // ==========================================
-        // 1-STAR FACTORY
-        // ==========================================
-
         if (rank >= 1 && highestFactoryRankAdded < 1) {
 
             // Factory 3: Pastillas, Yema, and Polvoron
@@ -320,10 +312,6 @@ public class Game {
             highestFactoryRankAdded = 1;
         }
 
-        // ==========================================
-        // 2-STAR FACTORY
-        // ==========================================
-
         if (rank >= 2 && highestFactoryRankAdded < 2) {
 
             // Factory 4: Six candy types with Tablea flavor
@@ -338,10 +326,6 @@ public class Game {
 
             highestFactoryRankAdded = 2;
         }
-
-        // ==========================================
-        // 3-STAR FACTORIES
-        // ==========================================
 
         if (rank >= 3 && highestFactoryRankAdded < 3) {
 
@@ -390,10 +374,6 @@ public class Game {
 
             highestFactoryRankAdded = 3;
         }
-
-        // ==========================================
-        // 4-STAR FACTORIES
-        // ==========================================
 
         if (rank >= 4 && highestFactoryRankAdded < 4) {
 
@@ -473,7 +453,7 @@ public class Game {
 
 
     // ==========================================
-    // TASK 2: TRAVEL AND MOVEMENT
+    // TRAVEL AND MOVEMENT
     // ==========================================
 
     /**
@@ -537,7 +517,7 @@ public class Game {
 
 
     // ==========================================
-    // TASK 2 AND TASK 5: TRAVEL AND BUILDING INTERACTIONS
+    // TRAVEL AND BUILDING INTERACTIONS
     // ==========================================
 
     /**
@@ -854,7 +834,7 @@ public class Game {
     }
 
     // ==========================================
-    // TASK 6: PLAYER'S HOME
+    // PLAYER'S HOME
     // ==========================================
 
     /**
@@ -902,7 +882,7 @@ public class Game {
     }
     
     // ==========================================
-    // TASK 3: SEARCH CANDIES
+    // SEARCH CANDIES
     // ==========================================
 
     /**
@@ -947,7 +927,7 @@ public class Game {
 
 
     // ==========================================
-    // TASK 6: VIEW PLAYER INFO
+    // VIEW PLAYER INFO
     // ==========================================
 
     /**
@@ -975,7 +955,7 @@ public class Game {
 
 
     // ==========================================
-    // TASK 4: VIEW ORDERS
+    // VIEW ORDERS
     // ==========================================
 
     /**
@@ -1361,7 +1341,6 @@ public class Game {
 
         isRunning = false;
     }
-
 
     // ==========================================
     // MAIN METHOD

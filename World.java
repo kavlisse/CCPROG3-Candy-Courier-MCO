@@ -10,10 +10,6 @@ import java.util.ArrayList;
 
 public class World {
 
-    // ==========================================
-    // GENERAL WORLD ATTRIBUTES
-    // ==========================================
-
     /** The two-dimensional grid containing the buildings in the world. */
     private Building[][] grid;
 
@@ -66,10 +62,6 @@ public class World {
         return houses;
     }
 
-    // ==========================================
-    // CONSTRUCTOR
-    // ==========================================
-
     /**
      * Constructs a World with the specified grid size.
      *
@@ -82,7 +74,7 @@ public class World {
 
 
     // ==========================================
-    // TASK 1: STAR-RANKING SYSTEM
+    // STAR-RANKING SYSTEM
     // ==========================================
 
     /**
@@ -139,7 +131,7 @@ public class World {
 
 
     // ==========================================
-    // TASK 2: TRAVEL AND MOVEMENT
+    // TRAVEL AND MOVEMENT
     // ==========================================
 
     /**
@@ -222,11 +214,6 @@ public class World {
 
         System.out.println("P = Player | H = Player's Home | . = Empty tile");
     }
-
-
-    // ==========================================
-    // GENERAL WORLD GETTERS
-    // ==========================================
 
     /**
      * Returns the current dimension of the world grid.

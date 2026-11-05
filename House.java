@@ -9,7 +9,7 @@
 public class House extends Building {
 
     // ==========================================
-    // TASK 5: HOUSE DELIVERY SYSTEM
+    // HOUSE DELIVERY SYSTEM
     // ==========================================
 
     /** The candies required by the house. */
@@ -94,7 +94,7 @@ public class House extends Building {
 
 
     // ==========================================
-    // TASK 5.1: CHECKING HOUSE ORDERS
+    // CHECKING HOUSE ORDERS
     // ==========================================
 
     /**
@@ -117,7 +117,7 @@ public class House extends Building {
 
 
     // ==========================================
-    // TASK 5.2: COMPLETING HOUSE DELIVERIES
+    // COMPLETING HOUSE DELIVERIES
     // ==========================================
 
     /**

@@ -9,10 +9,6 @@
  */
 public class Factory extends Building {
 
-    // ==========================================
-    // FACTORY ATTRIBUTES
-    // ==========================================
-
     /** The two-dimensional grid containing the factory's candies. */
     private Candy[][] productionGrid;
 
@@ -92,7 +88,7 @@ public class Factory extends Building {
 
 
     // ==========================================
-    // TASK 1: STAR-RANKING SYSTEM
+    // STAR-RANKING SYSTEM
     // ==========================================
 
     /**
@@ -125,7 +121,7 @@ public class Factory extends Building {
 
 
     // ==========================================
-    // TASK 2: FACTORY CANDY PICKUP
+    // FACTORY CANDY PICKUP
     // ==========================================
 
     /**
@@ -177,7 +173,7 @@ public class Factory extends Building {
 
 
     // ==========================================
-    // TASK 3: FACTORY PRODUCTION GRID DISPLAY
+    // FACTORY PRODUCTION GRID DISPLAY
     // ==========================================
 
     /**
@@ -223,7 +219,7 @@ public class Factory extends Building {
 
 
     // ==========================================
-    // TASK 4: FACTORY CANDY SEARCH
+    // FACTORY CANDY SEARCH
     // ==========================================
 
     /**
@@ -267,11 +263,6 @@ public class Factory extends Building {
 
         return false;
     }
-
-
-    // ==========================================
-    // GENERAL FACTORY GETTERS
-    // ==========================================
 
     /**
      * Returns the current dimension of the production grid.

@@ -8,10 +8,6 @@
  */
 public class PlayerHome extends Building {
 
-    // ==========================================
-    // PLAYER'S HOME CONSTRUCTOR
-    // ==========================================
-
     /**
      * Constructs the player's home at the specified world position.
      *

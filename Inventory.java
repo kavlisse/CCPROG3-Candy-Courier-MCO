@@ -10,10 +10,6 @@ import java.util.ArrayList;
  */
 public class Inventory {
 
-    // ==========================================
-    // TASK 3: INVENTORY MANAGEMENT
-    // ==========================================
-
     /** The maximum number of candies the player can hold. */
     private int capacity;
 
@@ -163,7 +159,7 @@ public class Inventory {
 
 
     // ==========================================
-    // TASK 5: HOUSE DELIVERY SYSTEM
+    // HOUSE DELIVERY SYSTEM
     // ==========================================
 
     /**
