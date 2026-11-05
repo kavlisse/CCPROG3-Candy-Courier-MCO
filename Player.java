@@ -1,11 +1,10 @@
-
 /**
  * Represents the player in the Candy Courier game.
  * Stores the player's information, handles XP accumulation,
  * rank progression, and player movement.
  *
  * @author Katelyn & Shaira
- * @version 1.0
+ * @version 1.3
  */
 public class Player {
 
@@ -21,6 +20,9 @@ public class Player {
 
     /** The current star rank of the player, ranging from 0 to 5. */
     private int starRank;
+
+    /** The total number of successful movement steps taken by the player. */
+    private int totalSteps;
 
     /** The inventory owned by the player. */
     private Inventory inventory;
@@ -51,6 +53,7 @@ public class Player {
         this.name = name;
         this.totalXP = 0;
         this.starRank = 0;
+        this.totalSteps = 0;
         this.inventory = new Inventory(20);
 
         // Starting position is assigned by the Game class.
@@ -286,6 +289,7 @@ public class Player {
         // Update the player's position after a successful move.
         row = newRow;
         column = newColumn;
+        totalSteps++;
 
         System.out.println("You moved " + direction.toLowerCase() + ".");
         System.out.println("New position: (" + row + ", " + column + ")");
@@ -323,6 +327,47 @@ public class Player {
      */
     public int getStarRank() {
         return starRank;
+    }
+
+    /**
+     * Returns the player's total number of successful movement steps.
+     *
+     * @return the total steps traveled
+     */
+    public int getTotalSteps() {
+        return totalSteps;
+    }
+
+    /**
+     * Returns the XP still needed to reach the next star rank.
+     * Returns 0 when the player has already reached 5 stars.
+     *
+     * @return the XP needed for the next rank
+     */
+    public int getXPNeededForNextRank() {
+
+        int nextRankThreshold;
+
+        if (starRank == 0) {
+            nextRankThreshold = 100;
+        }
+        else if (starRank == 1) {
+            nextRankThreshold = 500;
+        }
+        else if (starRank == 2) {
+            nextRankThreshold = 1400;
+        }
+        else if (starRank == 3) {
+            nextRankThreshold = 3000;
+        }
+        else if (starRank == 4) {
+            nextRankThreshold = 5500;
+        }
+        else {
+            return 0;
+        }
+
+        return nextRankThreshold - totalXP;
     }
 
     /**

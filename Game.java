@@ -6,7 +6,7 @@ import java.util.Scanner;
  * the player's activities and rank-based upgrades.
  *
  * @author Katelyn & Shaira
- * @version 1.2
+ * @version 1.3
  */
 public class Game {
 
@@ -94,6 +94,9 @@ public class Game {
             else if (choiceInput.equals("4")) {
                 handleMenuChoice(4);
             }
+            else if (choiceInput.equals("5")) {
+                handleMenuChoice(5);
+            }
             else if (choiceInput.equals("0")) {
                 handleMenuChoice(0);
             }
@@ -152,6 +155,9 @@ public class Game {
                 player.updatePosition(
                         player.getRow() + offset,
                         player.getColumn() + offset);
+
+                System.out.println("\nThe world has expanded to " +
+                        newSize + " x " + newSize + "!");
             }
 
             // Expand all existing factory production grids.
@@ -192,6 +198,58 @@ public class Game {
             System.out.println("Your inventory capacity is now "
                     + player.getInventory().getCapacity() + ".");
         }
+
+        // The game ends only after the player reaches 5 stars AND
+        // completes every house order in the world.
+        checkGameCompletion();
+    }
+
+
+    /**
+     * Checks whether the player has reached the required end-game condition.
+     * The game ends only when the player has 5 stars and all 16 house orders
+     * have been delivered.
+     */
+    private void checkGameCompletion() {
+
+        if (player != null && player.hasReachedMaxRank()
+                && areAllHouseOrdersDelivered()) {
+
+            System.out.println("\n========================================");
+            System.out.println("CONGRATULATIONS, " + player.getName() + "!");
+            System.out.println("You are now a 5-star Candy Courier!");
+            System.out.println("You have completed every delivery!");
+            System.out.println("========================================");
+
+            System.out.println("\n========== FINAL PLAYER STATS ==========");
+            viewPlayerInfo();
+            System.out.println("Thank you for playing Candy Courier!");
+
+            isRunning = false;
+        }
+    }
+
+    /**
+     * Checks whether all 16 houses listed in the program overview
+     * have been introduced and their orders have been completed.
+     *
+     * @return true if every house order has been delivered
+     */
+    private boolean areAllHouseOrdersDelivered() {
+
+        ArrayList<House> houses = world.getHouses();
+
+        if (houses.size() != 16) {
+            return false;
+        }
+
+        for (House house : houses) {
+            if (!house.isDelivered()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     
@@ -220,7 +278,7 @@ public class Game {
                 new Candy("Lollipop", "Mango"),
                 new Candy("Lollipop", "Macapuno"),
                 new Candy("Lollipop", "Pandan")
-            });
+            }, 0);
 
             // Factory 2: Gummy and Marshmallow
             placeFactory("Factory 2", 6, 0, new Candy[] {
@@ -232,7 +290,7 @@ public class Game {
                 new Candy("Marshmallow", "Mango"),
                 new Candy("Marshmallow", "Macapuno"),
                 new Candy("Marshmallow", "Pandan")
-            });
+            }, 0);
 
             highestFactoryRankAdded = 0;
         }
@@ -257,7 +315,7 @@ public class Game {
                 new Candy("Polvoron", "Mango"),
                 new Candy("Polvoron", "Macapuno"),
                 new Candy("Polvoron", "Pandan")
-            });
+            }, 1);
 
             highestFactoryRankAdded = 1;
         }
@@ -276,7 +334,7 @@ public class Game {
                 new Candy("Pastillas", "Tablea"),
                 new Candy("Yema", "Tablea"),
                 new Candy("Polvoron", "Tablea")
-            });
+            }, 2);
 
             highestFactoryRankAdded = 2;
         }
@@ -295,7 +353,7 @@ public class Game {
                 new Candy("Lollipop", "Durian"),
                 new Candy("Marshmallow", "Jackfruit"),
                 new Candy("Marshmallow", "Durian")
-            });
+            }, 3);
 
             // Factory 6: All Lollipop flavors
             placeFactory("Factory 6", 12, 6, new Candy[] {
@@ -306,7 +364,7 @@ public class Game {
                 new Candy("Lollipop", "Tablea"),
                 new Candy("Lollipop", "Jackfruit"),
                 new Candy("Lollipop", "Durian")
-            });
+            }, 3);
 
             // Factory 7: All Gummy flavors
             placeFactory("Factory 7", 5, 12, new Candy[] {
@@ -317,7 +375,7 @@ public class Game {
                 new Candy("Gummy", "Tablea"),
                 new Candy("Gummy", "Jackfruit"),
                 new Candy("Gummy", "Durian")
-            });
+            }, 3);
 
             // Factory 8: All Marshmallow flavors
             placeFactory("Factory 8", 6, 0, new Candy[] {
@@ -328,7 +386,7 @@ public class Game {
                 new Candy("Marshmallow", "Tablea"),
                 new Candy("Marshmallow", "Jackfruit"),
                 new Candy("Marshmallow", "Durian")
-            });
+            }, 3);
 
             highestFactoryRankAdded = 3;
         }
@@ -349,7 +407,7 @@ public class Game {
                 new Candy("Yema", "Mango"),
                 new Candy("Polvoron", "Ube"),
                 new Candy("Polvoron", "Mango")
-            });
+            }, 4);
 
             // Factory 10 / Factory X
             placeFactory("Factory 10", 14, 2, new Candy[] {
@@ -365,7 +423,7 @@ public class Game {
                 new Candy("Polvoron", "Pandan"),
                 new Candy("Polvoron", "Jackfruit"),
                 new Candy("Polvoron", "Durian")
-            });
+            }, 4);
 
             highestFactoryRankAdded = 4;
         }
@@ -379,21 +437,38 @@ public class Game {
      * @param row the factory's row position
      * @param column the factory's column position
      * @param allowedCandies the candies that the factory can produce
+     * @param introducedRank the rank at which the factory first becomes available
      */
     private void placeFactory(String name, int row, int column,
-                              Candy[] allowedCandies) {
+                              Candy[] allowedCandies, int introducedRank) {
+
+        // Adjust the introduction coordinates if several ranks were unlocked
+        // before the newly available factories were initialized.
+        int introductionGridSize = 7 + (introducedRank * 2);
+        int offset = (world.getGridSize() - introductionGridSize) / 2;
+
+        int actualRow = row + offset;
+        int actualColumn = column + offset;
+
+        // Create the factory using the production-grid size available
+        // when it is introduced. If the player skipped one or more ranks,
+        // expand it afterward so newly unlocked slots remain empty until
+        // the next day refresh event.
+        int factoryIntroductionGridSize = 6 + introducedRank;
 
         Factory factory = new Factory(
                 name,
-                row,
-                column,
+                actualRow,
+                actualColumn,
                 allowedCandies,
-                player.getFactoryGridSize()
+                factoryIntroductionGridSize
         );
 
-        world.placeBuilding(factory, row, column);
+        factory.expandProductionGrid(player.getFactoryGridSize());
+        world.placeBuilding(factory, actualRow, actualColumn);
 
-        System.out.println(name + " has been introduced!");
+        System.out.println(name + " has been introduced at (" +
+                actualRow + ", " + actualColumn + ")!");
     }
 
 
@@ -411,6 +486,7 @@ public class Game {
         System.out.println("2. View Inventory");
         System.out.println("3. Search Candies");
         System.out.println("4. View Orders");
+        System.out.println("5. View Player Info");
         System.out.println("0. Quit Game");
         System.out.println("===============================");
     }
@@ -434,6 +510,9 @@ public class Game {
         }
         else if (choice == 4) {
             viewOrders();
+        }
+        else if (choice == 5) {
+            viewPlayerInfo();
         }
         else if (choice == 0) {
             quitGame();
@@ -472,7 +551,7 @@ public class Game {
 
         boolean traveling = true;
 
-        while (traveling) {
+        while (traveling && isRunning) {
 
             System.out.println("\n========== TRAVEL ==========");
             System.out.println("Current position: (" +
@@ -753,7 +832,9 @@ public class Game {
 
                 awardXP(house.getXPReward());
 
-                System.out.println("You may continue exploring.");
+                if (isRunning) {
+                    System.out.println("You may continue exploring.");
+                }
             }
             else {
                 System.out.println("Delivery could not be completed.");
@@ -862,6 +943,34 @@ public class Game {
         }
 
         System.out.println("====================================");
+    }
+
+
+    // ==========================================
+    // TASK 6: VIEW PLAYER INFO
+    // ==========================================
+
+    /**
+     * Displays the player's current statistics and rank progress.
+     */
+    public void viewPlayerInfo() {
+
+        System.out.println("\n========== VIEW PLAYER INFO ==========");
+        System.out.println("Player Name: " + player.getName());
+        System.out.println("Total XP: " + player.getTotalXP());
+
+        if (player.getStarRank() == 5) {
+            System.out.println("XP Needed for Next Rank: Maximum rank reached!");
+        }
+        else {
+            System.out.println("XP Needed for Next Rank: " +
+                    player.getXPNeededForNextRank());
+        }
+
+        System.out.println("Star Rank: " + player.getStarRank() + "-star");
+        System.out.println("Total Steps Traveled: " + player.getTotalSteps());
+        System.out.println("Day Number: " + dayNum);
+        System.out.println("======================================");
     }
 
 
@@ -1243,10 +1352,14 @@ public class Game {
      */
     public void quitGame() {
 
-        isRunning = false;
+        // MCO1 requirement: display the player's statistics before exiting.
+        System.out.println("\n========== FINAL PLAYER STATS ==========");
+        viewPlayerInfo();
 
-        System.out.println("\nThank you for playing Candy Courier!");
+        System.out.println("Thank you for playing Candy Courier!");
         System.out.println("Game session ended.");
+
+        isRunning = false;
     }
 
 
