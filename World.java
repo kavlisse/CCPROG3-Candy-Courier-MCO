@@ -16,6 +16,9 @@ public class World {
     /** The current dimension of the square world grid. */
     private int gridSize;
 
+    /** Stores all houses, including houses sharing coordinates. */
+    private ArrayList<House> houses;
+
     /**
      * Returns all factories currently placed in the world.
      *
@@ -45,21 +48,38 @@ public class World {
      * @return a list of all houses in the world
      */
     public ArrayList<House> getHouses() {
+        return new ArrayList<>(houses);
+    }
 
-        ArrayList<House> houses = new ArrayList<>();
+    /**
+     * Returns all houses located at the specified coordinates.
+     *
+     * @param row the row position
+     * @param column the column position
+     * @return the houses at the specified position
+     */
+    public ArrayList<House> getHousesAt(int row, int column) {
 
-        for (int row = 0; row < gridSize; row++) {
-            for (int column = 0; column < gridSize; column++) {
+        ArrayList<House> housesAtPosition = new ArrayList<>();
 
-                Building building = grid[row][column];
-
-                if (building != null && building.getSymbol() == 'D') {
-                    houses.add((House) building);
-                }
+        for (House house : houses) {
+            if (house.getRow() == row && house.getColumn() == column) {
+                housesAtPosition.add(house);
             }
         }
 
-        return houses;
+        return housesAtPosition;
+    }
+
+    /**
+     * Adds a house to the list of houses in the world.
+     *
+     * @param house the house to add
+     */
+    public void addHouse(House house) {
+        if (house != null) {
+            houses.add(house);
+        }
     }
 
     /**
@@ -70,6 +90,7 @@ public class World {
     public World(int gridSize) {
         this.gridSize = gridSize;
         this.grid = new Building[gridSize][gridSize];
+        this.houses = new ArrayList<>();
     }
 
 
@@ -97,10 +118,24 @@ public class World {
             for (int column = 0; column < gridSize; column++) {
 
                 newGrid[row + offset][column + offset] = grid[row][column];
+            }
+        }
 
-                if (grid[row][column] != null) {
-                    grid[row][column].setPosition(
-                            row + offset, column + offset);
+        // Update every house, including houses that share a grid position.
+        for (House house : houses) {
+            house.setPosition(
+                    house.getRow() + offset,
+                    house.getColumn() + offset);
+        }
+
+        // Update the positions of non-house buildings in the grid.
+        for (int row = 0; row < gridSize; row++) {
+            for (int column = 0; column < gridSize; column++) {
+
+                Building building = grid[row][column];
+
+                if (building != null && building.getSymbol() != 'D') {
+                    building.setPosition(row + offset, column + offset);
                 }
             }
         }
@@ -136,6 +171,7 @@ public class World {
 
     /**
      * Places a building at its specified position in the world grid.
+     * If the position is occupied, the existing building remains displayed.
      *
      * @param building the building to be placed
      * @param row the row position
@@ -147,7 +183,10 @@ public class World {
             return;
         }
 
-        grid[row][column] = building;
+        if (grid[row][column] == null) {
+            grid[row][column] = building;
+        }
+
         building.setPosition(row, column);
     }
 
@@ -212,7 +251,8 @@ public class World {
             System.out.println();
         }
 
-        System.out.println("P = Player | H = Player's Home | . = Empty tile");
+        System.out.println("P = Player | H = Player's Home | F = Factory "
+                + "| D = House | . = Empty tile");
     }
 
     /**

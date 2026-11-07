@@ -504,15 +504,161 @@ public class Game {
 
 
     /**
-     * Displays the player's current inventory.
+     * Displays the player's inventory and allows the player
+     * to discard one or multiple candies.
      */
     public void handleViewInventory() {
 
-        System.out.println("\n========== VIEW INVENTORY ==========");
+        boolean viewingInventory = true;
 
-        player.getInventory().displayInventory();
+        while (viewingInventory) {
 
-        System.out.println("====================================");
+            System.out.println("\n========== VIEW INVENTORY ==========");
+            player.getInventory().displayInventory();
+
+            System.out.println("1. Discard one candy");
+            System.out.println("2. Discard multiple candies");
+            System.out.println("0. Return to Main Menu");
+            System.out.print("Choose an option: ");
+
+            String choice = input.nextLine().trim();
+
+            if (choice.equals("1")) {
+                discardOneCandy();
+            }
+            else if (choice.equals("2")) {
+                discardMultipleCandies();
+            }
+            else if (choice.equals("0")) {
+                viewingInventory = false;
+            }
+            else {
+                System.out.println("Invalid option. Please choose 1, 2, or 0.");
+            }
+        }
+    }
+
+    /**
+     * Allows the player to discard one candy using its inventory slot number.
+     */
+    private void discardOneCandy() {
+
+        Inventory inventory = player.getInventory();
+
+        if (inventory.getCandyCount() == 0) {
+            System.out.println("Your inventory is empty. There is nothing to discard.");
+            return;
+        }
+
+        System.out.print("Enter the slot number of the candy to discard: ");
+        String slotInput = input.nextLine().trim();
+
+        try {
+            int slotNumber = Integer.parseInt(slotInput);
+            Candy candy = inventory.getCandyAtSlot(slotNumber);
+
+            if (candy == null) {
+                System.out.println("Invalid slot number. No candy was discarded.");
+                return;
+            }
+
+            if (inventory.removeCandy(slotNumber)) {
+                System.out.println("Discarded " + formatCandyName(candy) + ".");
+                System.out.println("Inventory capacity: "
+                        + inventory.getCandyCount() + "/" + inventory.getCapacity());
+            }
+        }
+        catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a whole-number slot.");
+        }
+    }
+
+    /**
+     * Allows the player to discard multiple candies by entering
+     * comma-separated inventory slot numbers.
+     */
+    private void discardMultipleCandies() {
+
+        Inventory inventory = player.getInventory();
+
+        if (inventory.getCandyCount() == 0) {
+            System.out.println("Your inventory is empty. There is nothing to discard.");
+            return;
+        }
+
+        System.out.print("Enter the slot numbers to discard, separated by commas: ");
+        String slotInput = input.nextLine().trim();
+
+        if (slotInput.isEmpty()) {
+            System.out.println("No slots were entered. Nothing was discarded.");
+            return;
+        }
+
+        ArrayList<Integer> slotNumbers = new ArrayList<>();
+        ArrayList<Candy> candiesToDiscard = new ArrayList<>();
+
+        try {
+            String[] selectedSlots = slotInput.split(",");
+
+            for (String selectedSlot : selectedSlots) {
+                int slotNumber = Integer.parseInt(selectedSlot.trim());
+
+                if (inventory.getCandyAtSlot(slotNumber) == null) {
+                    System.out.println("Invalid slot number: " + slotNumber
+                            + ". Nothing was discarded.");
+                    return;
+                }
+
+                if (slotNumbers.contains(slotNumber)) {
+                    System.out.println("Duplicate slot number: " + slotNumber
+                            + ". Enter each slot only once. Nothing was discarded.");
+                    return;
+                }
+
+                slotNumbers.add(slotNumber);
+                candiesToDiscard.add(inventory.getCandyAtSlot(slotNumber));
+            }
+        }
+        catch (NumberFormatException e) {
+            System.out.println("Invalid input. Use comma-separated whole numbers, "
+                    + "such as 1, 3, 5. Nothing was discarded.");
+            return;
+        }
+
+        int removedCount = inventory.removeMultipleCandies(slotNumbers);
+
+        if (removedCount == candiesToDiscard.size()) {
+            System.out.println("Successfully discarded:");
+
+            for (Candy candy : candiesToDiscard) {
+                System.out.println("- " + formatCandyName(candy));
+            }
+
+            System.out.println("Inventory capacity: "
+                    + inventory.getCandyCount() + "/" + inventory.getCapacity());
+        }
+        else {
+            System.out.println("The selected slots could not be discarded. "
+                    + "Your inventory was not changed.");
+        }
+    }
+
+    /**
+     * Creates a readable candy name that includes its flavor when applicable.
+     *
+     * @param candy the candy to describe
+     * @return the candy type and, when present, its flavor
+     */
+    private String formatCandyName(Candy candy) {
+
+        String candyName = candy.getCandyType();
+        String flavor = candy.getCandyFlavor();
+
+        if (flavor != null && !flavor.equalsIgnoreCase("N/A")) {
+            candyName += " (" + flavor + ")";
+        }
+
+        return candyName;
     }
 
 
@@ -640,11 +786,37 @@ public class Game {
                         // TASK 5: Handle house delivery interactions.
                         else if (building.getSymbol() == 'D') {
 
-                            House house = (House) building;
+                            ArrayList<House> housesAtPosition = world.getHousesAt(
+                                    player.getRow(), player.getColumn());
 
-                            // Completed houses no longer trigger delivery events.
-                            if (!house.isDelivered()) {
-                                handleHouse(house);
+                            if (housesAtPosition.size() == 1) {
+                                handleHouse(housesAtPosition.get(0));
+                            }
+                            else if (housesAtPosition.size() > 1) {
+
+                                System.out.println("\nMultiple houses are located here.");
+
+                                for (int i = 0; i < housesAtPosition.size(); i++) {
+                                    System.out.println((i + 1) + ". "
+                                            + housesAtPosition.get(i).getName());
+                                }
+
+                                System.out.print("Choose a house: ");
+                                String houseChoice = input.nextLine();
+
+                                try {
+                                    int selection = Integer.parseInt(houseChoice);
+
+                                    if (selection >= 1 && selection <= housesAtPosition.size()) {
+                                        handleHouse(housesAtPosition.get(selection - 1));
+                                    }
+                                    else {
+                                        System.out.println("Invalid selection.");
+                                    }
+                                }
+                                catch (NumberFormatException e) {
+                                    System.out.println("Invalid input. Please enter a number.");
+                                }
                             }
                         }
 
@@ -1098,7 +1270,7 @@ public class Game {
 
             case 2:
                 // House E
-                placeHouse("House E", 0, 6,
+                placeHouse("House E", 9, 7,
                     new Candy[] {
                         new Candy("Candy Corn"),
                         new Candy("Yema", "Any"),
@@ -1275,6 +1447,7 @@ public class Game {
             xp
         );
 
+        world.addHouse(house);
         world.placeBuilding(house, actualRow, actualColumn);
     }
 

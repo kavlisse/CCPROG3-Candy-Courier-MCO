@@ -116,6 +116,21 @@ public class Inventory {
     }
 
     /**
+     * Returns the candy stored in the specified displayed slot.
+     *
+     * @param slotNumber the displayed position of the candy
+     * @return the candy at that position, or null if the slot is invalid
+     */
+    public Candy getCandyAtSlot(int slotNumber) {
+
+        if (slotNumber < 1 || slotNumber > candies.size()) {
+            return null;
+        }
+
+        return candies.get(slotNumber - 1);
+    }
+
+    /**
      * Removes a candy from the inventory using its displayed slot number.
      *
      * @param slotNumber the position of the candy to be removed
@@ -139,11 +154,24 @@ public class Inventory {
      */
     public int removeMultipleCandies(ArrayList<Integer> slotNumbers) {
 
-        int removedCount = 0;
-
         if (slotNumbers == null || slotNumbers.isEmpty()) {
             return 0;
         }
+
+        // Validate every requested slot before changing the inventory.
+        // This prevents a partly completed discard if one slot is invalid.
+        for (int i = 0; i < slotNumbers.size(); i++) {
+
+            Integer slotNumber = slotNumbers.get(i);
+
+            if (slotNumber == null || slotNumber < 1
+                    || slotNumber > candies.size()
+                    || slotNumbers.indexOf(slotNumber) != i) {
+                return 0;
+            }
+        }
+
+        int removedCount = 0;
 
         // Remove from the last slot to avoid shifting remaining indices.
         for (int i = candies.size(); i >= 1; i--) {

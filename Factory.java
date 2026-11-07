@@ -42,13 +42,14 @@ public class Factory extends Building {
         this.gridSize = gridSize;
         this.productionGrid = new Candy[gridSize][gridSize];
 
-        // Generate candies when the factory is first created.
-        refreshProductionGrid();
+        // Initialize candies without calling an overridable method
+        // from the constructor.
+        initializeProductionGrid();
     }
 
 
     // ==========================================
-    // TASK 3: FACTORY CANDY GENERATION
+    // FACTORY CANDY GENERATION
     // ==========================================
 
     /**
@@ -58,8 +59,17 @@ public class Factory extends Building {
      */
     public Candy generateRandomCandy() {
 
-        int randomIndex = (int) (Math.random() * allowedCandies.length);
+        return createRandomCandy();
+    }
 
+    /**
+     * Creates a random candy without invoking an overridable method.
+     *
+     * @return a randomly generated candy from this factory's allowed candies
+     */
+    private Candy createRandomCandy() {
+
+        int randomIndex = (int) (Math.random() * allowedCandies.length);
         Candy selectedCandy = allowedCandies[randomIndex];
 
         return new Candy(
@@ -77,11 +87,18 @@ public class Factory extends Building {
      */
     public void refreshProductionGrid() {
 
+        initializeProductionGrid();
+    }
+
+    /**
+     * Fills every slot in the current production grid with a new candy.
+     * This private helper is safe to call from the constructor.
+     */
+    private void initializeProductionGrid() {
+
         for (int row = 0; row < gridSize; row++) {
             for (int column = 0; column < gridSize; column++) {
-
-                productionGrid[row][column] = generateRandomCandy();
-
+                productionGrid[row][column] = createRandomCandy();
             }
         }
     }
@@ -166,7 +183,7 @@ public class Factory extends Building {
         productionGrid[row][column] = null;
 
         System.out.println("Successfully picked up " +
-                candy.getCandyType() + "!");
+                getCandyDisplayName(candy) + "!");
 
         return true;
     }
@@ -188,7 +205,7 @@ public class Factory extends Building {
         System.out.print("     ");
 
         for (int column = 0; column < gridSize; column++) {
-            System.out.printf("%-16d", column);
+            System.out.printf("%-30d", column);
         }
 
         System.out.println();
@@ -201,13 +218,13 @@ public class Factory extends Building {
             for (int column = 0; column < gridSize; column++) {
 
                 if (productionGrid[row][column] == null) {
-                    System.out.printf("%-16s", "[ - ]");
+                    System.out.printf("%-30s", "[ - ]");
                 }
                 else {
                     String candyName =
-                            productionGrid[row][column].getCandyType();
+                            getCandyDisplayName(productionGrid[row][column]);
 
-                    System.out.printf("%-16s", "[ " + candyName + " ]");
+                    System.out.printf("%-30s", "[ " + candyName + " ]");
                 }
             }
 
@@ -215,6 +232,25 @@ public class Factory extends Building {
         }
 
         System.out.println("\nCoordinates start at 0.");
+    }
+
+
+    /**
+     * Returns the candy type and flavor in a readable display format.
+     *
+     * @param candy the candy to display
+     * @return the candy type with its flavor when applicable
+     */
+    private String getCandyDisplayName(Candy candy) {
+
+        String candyName = candy.getCandyType();
+        String flavor = candy.getCandyFlavor();
+
+        if (flavor != null && !flavor.equalsIgnoreCase("N/A")) {
+            candyName += " (" + flavor + ")";
+        }
+
+        return candyName;
     }
 
 
