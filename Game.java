@@ -832,7 +832,7 @@ public class Game {
 
     /**
      * Displays the factory menu and allows the player
-     * to pick up candies or exit the factory.
+     * to pick up one or multiple candies or exit.
      *
      * @param factory the factory the player has entered
      */
@@ -844,7 +844,8 @@ public class Game {
 
             System.out.println("\n========== " +
                     factory.getName().toUpperCase() + " ==========");
-            System.out.println("1. Pick Up Candy");
+            System.out.println("1. Pick Up One Candy");
+            System.out.println("2. Pick Up Multiple Candies");
             System.out.println("0. Exit Factory");
             System.out.println("================================");
 
@@ -854,6 +855,9 @@ public class Game {
 
             if (choice.equals("1")) {
                 handleCandyPickup(factory);
+            }
+            else if (choice.equals("2")) {
+                handleMultipleCandyPickup(factory);
             }
             else if (choice.equals("0")) {
                 insideFactory = false;
@@ -867,8 +871,8 @@ public class Game {
     }
 
     /**
-     * Allows the player to select multiple candies from the factory's
-     * production grid and add them to their inventory.
+     * Allows the player to pick up one candy at a time
+     * from the factory's production grid.
      *
      * @param factory the factory where the player is picking up candy
      */
@@ -878,7 +882,6 @@ public class Game {
 
         while (pickingCandies) {
 
-            // Display the updated production grid.
             factory.displayProductionGrid();
 
             System.out.print("\nEnter candy row: ");
@@ -903,10 +906,8 @@ public class Game {
             int column = input.nextInt();
             input.nextLine();
 
-            // Attempt to pick up the selected candy.
             factory.pickUpCandy(row, column, player.getInventory());
 
-            // Ask whether the player wants to pick up another candy.
             System.out.println("\nWould you like to pick up another candy?");
             System.out.println("1. Yes");
             System.out.println("0. No");
@@ -926,7 +927,7 @@ public class Game {
     }
 
     // ==========================================
-    // TASK 5: HOUSE DELIVERY SYSTEM
+    // HOUSE DELIVERY SYSTEM
     // ==========================================
 
     /**
@@ -1003,6 +1004,84 @@ public class Game {
             System.out.println("Invalid choice. No candies were delivered.");
             System.out.println("You may continue exploring.");
         }
+    }
+
+/**
+ * Allows the player to pick up multiple candies
+ * from the factory's production grid in one interaction.
+ *
+ * @param factory the factory where the player is picking up candy
+ */
+    public void handleMultipleCandyPickup(Factory factory) {
+
+        factory.displayProductionGrid();
+
+        System.out.print("\nEnter the number of candies to pick up: ");
+
+        if (!input.hasNextInt()) {
+            System.out.println("Invalid input. Please enter a number.");
+            input.nextLine();
+            return;
+        }
+
+        int amount = input.nextInt();
+        input.nextLine();
+
+        if (amount <= 0) {
+            System.out.println("Please enter a number greater than zero.");
+            return;
+        }
+
+        int successfulPickups = 0;
+
+        while (successfulPickups < amount) {
+
+            // Check if the player's inventory is full.
+            if (player.getInventory().isFull()) {
+                System.out.println("\nYour inventory is full!");
+                break;
+            }
+
+            // Display the updated grid before selecting another candy.
+            factory.displayProductionGrid();
+
+            System.out.println("\nSelect candy " + (successfulPickups + 1));
+
+            System.out.print("Enter candy row: ");
+
+            if (!input.hasNextInt()) {
+                System.out.println("Invalid row. Please enter a number.");
+                input.nextLine();
+                continue;
+            }
+
+            int row = input.nextInt();
+            input.nextLine();
+
+            System.out.print("Enter candy column: ");
+
+            if (!input.hasNextInt()) {
+                System.out.println("Invalid column. Please enter a number.");
+                input.nextLine();
+                continue;
+            }
+
+            int column = input.nextInt();
+            input.nextLine();
+
+            // Attempt to pick up the selected candy.
+            boolean pickedUp = factory.pickUpCandy(
+                    row, column, player.getInventory());
+
+            if (pickedUp) {
+                successfulPickups++;
+            }
+        }
+
+        System.out.println("\n========== PICKUP SUMMARY ==========");
+        System.out.println("Successfully collected: " + successfulPickups);
+        System.out.println("====================================");
+        System.out.println("Returning to the factory menu.");
     }
 
     // ==========================================
