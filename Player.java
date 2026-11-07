@@ -3,7 +3,7 @@
  * Stores the player's information, handles XP accumulation,
  * rank progression, and player movement.
  *
- * @author Katelyn & Shaira
+ * @author Katelyn and Shaira
  * @version 1.3
  */
 public class Player {

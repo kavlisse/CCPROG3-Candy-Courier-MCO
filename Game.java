@@ -5,7 +5,7 @@ import java.util.Scanner;
  * Controls the Candy Courier game and coordinates
  * the player's activities and rank-based upgrades.
  *
- * @author Katelyn & Shaira
+ * @author Katelyn and Shaira
  * @version 1.3
  */
 public class Game {

@@ -3,7 +3,7 @@
  * Represents a candy produced by a factory
  * in the Candy Courier game.
  *
- * @author Katelyn & Shaira
+ * @author Katelyn and Shaira
  * @version 1.1
  */
 public class Candy {

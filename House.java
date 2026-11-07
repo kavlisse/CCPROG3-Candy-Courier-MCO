@@ -3,7 +3,7 @@
  * Stores the house's candy orders, required quantities,
  * XP reward, and delivery status.
  *
- * @author Katelyn & Shaira
+ * @author Katelyn and Shaira
  * @version 1.1
  */
 public class House extends Building {

@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 /**
  * Represents the world grid in the Candy Courier game.
  * Manages the world size, building placement, building retrieval,
@@ -6,7 +7,6 @@
  * @author Katelyn and Shaira
  * @version 1.1
  */
-import java.util.ArrayList;
 
 public class World {
 

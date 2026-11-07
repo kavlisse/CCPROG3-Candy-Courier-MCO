@@ -3,7 +3,7 @@
  * Represents the player's home in the Candy Courier game.
  * Serves as the player's starting location in the world.
  *
- * @author Katelyn & Shaira
+ * @author Katelyn and Shaira
  * @version 1.0
  */
 public class PlayerHome extends Building {

@@ -3,7 +3,7 @@
  * Represents the general structure of a building in the Candy Courier game.
  * Stores the building's name, position, and identifying symbol.
  *
- * @author Katelyn & Shaira
+ * @author Katelyn and Shaira
  * @version 1.1
  */
 public class Building {
