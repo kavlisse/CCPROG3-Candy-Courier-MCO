@@ -1439,7 +1439,7 @@ public class Game {
 
             case 2:
                 // House E
-                placeHouse("House E", 9, 7,
+                placeHouse("House E", 0, 6,
                     new Candy[] {
                         new Candy("Candy Corn"),
                         new Candy("Yema", "Any"),
