@@ -80,7 +80,7 @@ public class Game {
             displayMainMenu();
 
             System.out.print("Enter your choice: ");
-            String choiceInput = input.nextLine();
+            String choiceInput = input.nextLine().trim(); 
 
             if (choiceInput.equals("1")) {
                 handleMenuChoice(1);
@@ -503,6 +503,7 @@ public class Game {
     }
 
 
+ 
     /**
      * Displays the player's inventory and allows the player
      * to discard one or multiple candies.
@@ -513,30 +514,48 @@ public class Game {
 
         while (viewingInventory) {
 
-            System.out.println("\n========== VIEW INVENTORY ==========");
+            System.out.println("\n========================================");
+            System.out.println("              VIEW INVENTORY");
+            System.out.println("========================================");
+
+            // Display inventory only once.
             player.getInventory().displayInventory();
 
-            System.out.println("1. Discard one candy");
-            System.out.println("2. Discard multiple candies");
+            System.out.println("\nOPTIONS");
+            System.out.println("1. Discard One Candy");
+            System.out.println("2. Discard Multiple Candies");
+            System.out.println("----------------------------------------");
             System.out.println("0. Return to Main Menu");
+            System.out.println("========================================");
+
             System.out.print("Choose an option: ");
 
             String choice = input.nextLine().trim();
 
             if (choice.equals("1")) {
+
                 discardOneCandy();
+
             }
             else if (choice.equals("2")) {
+
                 discardMultipleCandies();
+
             }
             else if (choice.equals("0")) {
+
                 viewingInventory = false;
+                System.out.println("Returning to the main menu.");
+
             }
             else {
+
                 System.out.println("Invalid option. Please choose 1, 2, or 0.");
+
             }
         }
     }
+
 
     /**
      * Allows the player to discard one candy using its inventory slot number.
@@ -840,6 +859,8 @@ public class Game {
 
         boolean insideFactory = true;
 
+        factory.displayProductionGrid();
+
         while (insideFactory) {
 
             System.out.println("\n========== " +
@@ -1136,13 +1157,16 @@ public class Game {
     // SEARCH CANDIES
     // ==========================================
 
+ 
     /**
      * Allows the player to search for candies and displays
      * the factories that produce the specified candy.
      */
     public void searchCandies() {
 
-        System.out.println("\n========== SEARCH CANDIES ==========");
+        System.out.println("\n========================================");
+        System.out.println("              SEARCH CANDIES");
+        System.out.println("========================================");
 
         System.out.print("Enter candy type: ");
         String candyType = input.nextLine().trim();
@@ -1151,6 +1175,9 @@ public class Game {
         String candyFlavor = input.nextLine().trim();
 
         boolean found = false;
+
+        System.out.println("\nSEARCH RESULTS");
+        System.out.println("----------------------------------------");
 
         for (Factory factory : world.getFactories()) {
 
@@ -1173,8 +1200,22 @@ public class Game {
             System.out.println("No factories produce the specified candy.");
         }
 
-        System.out.println("====================================");
+        System.out.println("----------------------------------------");
+        System.out.println("0. Return to Main Menu");
+        System.out.println("========================================");
+
+        System.out.print("Choose an option: ");
+
+        String choice = input.nextLine().trim();
+
+        if (choice.equals("0")) {
+            System.out.println("Returning to the main menu.");
+        }
+        else {
+            System.out.println("Invalid option. Returning to the main menu.");
+        }
     }
+
 
 
     // ==========================================
@@ -1186,7 +1227,12 @@ public class Game {
      */
     public void viewPlayerInfo() {
 
-        System.out.println("\n========== VIEW PLAYER INFO ==========");
+        System.out.println("\n========================================");
+        System.out.println("             VIEW PLAYER INFO");
+        System.out.println("========================================");
+
+        System.out.println("\nPLAYER STATISTICS");
+
         System.out.println("Player Name: " + player.getName());
         System.out.println("Total XP: " + player.getTotalXP());
 
@@ -1194,47 +1240,69 @@ public class Game {
             System.out.println("XP Needed for Next Rank: Maximum rank reached!");
         }
         else {
-            System.out.println("XP Needed for Next Rank: " +
-                    player.getXPNeededForNextRank());
+            System.out.println("XP Needed for Next Rank: "
+                    + player.getXPNeededForNextRank());
         }
 
         System.out.println("Star Rank: " + player.getStarRank() + "-star");
         System.out.println("Total Steps Traveled: " + player.getTotalSteps());
         System.out.println("Day Number: " + dayNum);
-        System.out.println("======================================");
+
+        System.out.println("\n----------------------------------------");
+        System.out.println("0. Return to Main Menu");
+        System.out.println("========================================");
+
+        System.out.print("Choose an option: ");
+
+        String choice = input.nextLine().trim();
+
+        if (choice.equals("0")) {
+            System.out.println("Returning to the main menu.");
+        }
+        else {
+            System.out.println("Invalid option. Returning to the main menu.");
+        }
     }
+
+
 
 
     // ==========================================
     // VIEW ORDERS
     // ==========================================
 
+ 
     /**
-     * Displays all accessible house orders, including their
-     * coordinates, required candies, quantities, and XP rewards.
+     * Displays all available house orders, including coordinates,
+     * required candies, quantities, and XP rewards.
      */
     public void viewOrders() {
 
-        System.out.println("\n========== VIEW ORDERS ==========");
-
         ArrayList<House> houses = world.getHouses();
 
+        System.out.println("\n========================================");
+        System.out.println("               HOUSE ORDERS");
+        System.out.println("========================================");
+
         if (houses.isEmpty()) {
-            System.out.println("There are currently no available house orders.");
+
+            System.out.println("No house orders are currently available.");
+
         }
         else {
 
             for (House house : houses) {
 
-                System.out.println("\n" + house.getName());
+                System.out.println("\n" + house.getName().toUpperCase()
+                        + " | (" + house.getRow() + ", "
+                        + house.getColumn() + ")");
 
-                System.out.println("Coordinates: (" +
-                        house.getRow() + ", " + house.getColumn() + ")");
-
-                System.out.println("Required Candies:");
+                System.out.println("----------------------------------------");
 
                 Candy[] requiredCandies = house.getRequiredCandies();
                 int[] requiredQuantities = house.getRequiredQuantities();
+
+                System.out.println("REQUIRED CANDIES");
 
                 for (int i = 0; i < requiredCandies.length; i++) {
 
@@ -1244,25 +1312,47 @@ public class Game {
                     String flavor = candy.getCandyFlavor();
 
                     if ("Any".equalsIgnoreCase(flavor)) {
-                        candyName += " (any flavor)";
+                        candyName += " (Any flavor)";
                     }
                     else if (flavor != null &&
                             !flavor.equalsIgnoreCase("N/A")) {
                         candyName += " (" + flavor + ")";
                     }
 
-                    System.out.println("- " + requiredQuantities[i] +
-                            "x " + candyName);
+                    System.out.println("  - " + requiredQuantities[i]
+                            + "x " + candyName);
                 }
 
-                System.out.println("XP Reward: " + house.getXPReward() + " XP");
-                System.out.println("Delivery Status: " +
-                        (house.isDelivered() ? "Completed" : "Pending"));
+                System.out.println("\nXP Reward: " + house.getXPReward() + " XP");
+
+                System.out.println("Status: "
+                        + (house.isDelivered() ? "COMPLETED" : "PENDING"));
+
+                System.out.println("----------------------------------------");
             }
+
+            System.out.println("Total Houses: " + houses.size());
         }
 
-        System.out.println("=================================");
+        System.out.println();
+        System.out.println("----------------------------------------");
+        System.out.println("0. Return to Main Menu");
+        System.out.println("========================================");
+
+        System.out.print("Choose an option: ");
+
+        String choice = input.nextLine().trim();
+
+        if (choice.equals("0")) {
+            System.out.println("Returning to the main menu.");
+        }
+        else {
+            System.out.println("Invalid option. Returning to the main menu.");
+        }
     }
+
+
+
 
 
     /**

@@ -189,49 +189,119 @@ public class Factory extends Building {
     }
 
 
-    // ==========================================
-    // FACTORY PRODUCTION GRID DISPLAY
-    // ==========================================
-
     /**
-     * Displays the candies currently available in the factory.
+     * Displays the candies currently available in the factory
+     * using a properly formatted two-dimensional grid.
      * Empty slots are represented by a dash.
      */
     public void displayProductionGrid() {
 
-        System.out.println("\n========== CANDY PRODUCTION GRID ==========");
+        int rowHeaderWidth = 8;
+        int cellWidth = 10;
 
-        // Display the column numbers.
-        System.out.print("     ");
+        // Determine the required width based on the longest candy name.
+        for (Candy candy : allowedCandies) {
+
+            String candyName = getCandyDisplayName(candy);
+
+            if (candyName.length() + 4 > cellWidth) {
+                cellWidth = candyName.length() + 4;
+            }
+        }
+
+        // Calculate the total width of the grid.
+        int totalWidth = 1 + rowHeaderWidth + 1
+                + gridSize * (cellWidth + 1);
+
+        // Display factory title.
+        printGridBorder(rowHeaderWidth, cellWidth);
+
+        String title = getName().toUpperCase()
+                + " - PRODUCTION GRID ("
+                + gridSize + " x " + gridSize + ")";
+
+        int padding = (totalWidth - title.length()) / 2;
+
+        for (int i = 0; i < padding; i++) {
+            System.out.print(" ");
+        }
+
+        System.out.println(title);
+
+        // Display top border.
+        printGridBorder(rowHeaderWidth, cellWidth);
+
+        // Display column headings.
+        System.out.printf("|%-" + rowHeaderWidth + "s|", "Row/Col");
 
         for (int column = 0; column < gridSize; column++) {
-            System.out.printf("%-30d", column);
+            System.out.printf("%" + cellWidth + "d|", column);
         }
 
         System.out.println();
 
+        // Separate column headings from candy slots.
+        printGridBorder(rowHeaderWidth, cellWidth);
+
+        // Display candy production grid.
         for (int row = 0; row < gridSize; row++) {
 
-            // Display the row number.
-            System.out.printf("%-5d", row);
+            System.out.printf("|%-" + rowHeaderWidth + "d|", row);
 
             for (int column = 0; column < gridSize; column++) {
 
-                if (productionGrid[row][column] == null) {
-                    System.out.printf("%-30s", "[ - ]");
+                Candy candy = productionGrid[row][column];
+
+                String cellContent;
+
+                if (candy == null) {
+                    cellContent = "[ - ]";
                 }
                 else {
-                    String candyName =
-                            getCandyDisplayName(productionGrid[row][column]);
-
-                    System.out.printf("%-30s", "[ " + candyName + " ]");
+                    cellContent = "[ "
+                            + getCandyDisplayName(candy)
+                            + " ]";
                 }
+
+                System.out.printf("%-" + cellWidth + "s|", cellContent);
             }
 
             System.out.println();
+
+            // Separate each row.
+            printGridBorder(rowHeaderWidth, cellWidth);
         }
 
         System.out.println("\nCoordinates start at 0.");
+    }
+
+
+    /**
+     * Prints a horizontal border for the factory production grid.
+     *
+     * @param rowHeaderWidth the width of the row heading
+     * @param cellWidth the width of each candy cell
+     */
+    private void printGridBorder(int rowHeaderWidth, int cellWidth) {
+
+        System.out.print("+");
+
+        for (int i = 0; i < rowHeaderWidth; i++) {
+            System.out.print("-");
+        }
+
+        System.out.print("+");
+
+        for (int column = 0; column < gridSize; column++) {
+
+            for (int i = 0; i < cellWidth; i++) {
+                System.out.print("-");
+            }
+
+            System.out.print("+");
+        }
+
+        System.out.println();
     }
 
 
