@@ -218,41 +218,145 @@ public class World {
                 && column >= 0 && column < gridSize;
     }
 
+
     /**
      * Displays the world grid and the player's current position.
-     * The player is represented by P, while other buildings
-     * are represented by their identifying symbols.
+     * Each building is identified by its name and a corresponding legend.
      *
      * @param player the player whose position will be displayed
      */
     public void displayWorld(Player player) {
 
-        System.out.println("\nWORLD GRID (" + gridSize + " x " + gridSize + ")");
+        int cellWidth = 10;
+        int rowWidth = 5;
+        int totalWidth = rowWidth + (gridSize * cellWidth);
 
+        // Top border and title.
+        printLine('=', totalWidth);
+
+        System.out.printf("%" + (totalWidth / 2 + 10) + "s%n",
+                "WORLD GRID (" + gridSize + " x " + gridSize + ")");
+
+        printLine('=', totalWidth);
+
+        // Display column headings.
+        System.out.printf("%-" + rowWidth + "s", "ROW");
+
+        for (int column = 0; column < gridSize; column++) {
+            System.out.printf("%-" + cellWidth + "d", column);
+        }
+
+        System.out.println();
+
+        // Separator below column headings.
+        printLine('-', totalWidth);
+
+        // Display world grid.
         for (int row = 0; row < gridSize; row++) {
+
+            System.out.printf("%-" + rowWidth + "d", row);
 
             for (int column = 0; column < gridSize; column++) {
 
-                if (player.getRow() == row &&
-                    player.getColumn() == column) {
+                ArrayList<String> labels = new ArrayList<>();
 
-                    System.out.print("[ P ]");
+                // Display player.
+                if (player != null
+                        && player.getRow() == row
+                        && player.getColumn() == column) {
+
+                    labels.add("P");
                 }
-                else if (grid[row][column] != null) {
 
-                    System.out.print("[ " +
-                            grid[row][column].getSymbol() + " ]");
+                // Display houses.
+                for (House house : houses) {
+
+                    if (house.getRow() == row
+                            && house.getColumn() == column) {
+
+                        labels.add(house.getName()
+                                .replace("House ", "H"));
+                    }
+                }
+
+                // Display factories and player's home.
+                Building building = grid[row][column];
+
+                if (building != null) {
+
+                    if (building.getSymbol() == 'F') {
+
+                        labels.add(building.getName()
+                                .replace("Factory ", "F"));
+                    }
+                    else if (building.getSymbol() == 'H') {
+
+                        labels.add("PH");
+                    }
+                }
+
+                // Display tile contents.
+                String cellContent;
+
+                if (labels.isEmpty()) {
+                    cellContent = ".";
                 }
                 else {
-                    System.out.print("[ . ]");
+                    cellContent = String.join("/", labels);
                 }
+
+                System.out.printf("%-" + cellWidth + "s",
+                        "[" + cellContent + "]");
             }
 
             System.out.println();
         }
 
-        System.out.println("P = Player | H = Player's Home | F = Factory "
-                + "| D = House | . = Empty tile");
+        // Bottom border.
+        printLine('=', totalWidth);
+
+        // Display legend.
+        System.out.println("\nWORLD GRID LEGEND");
+        printLine('-', 25);
+
+        System.out.println("P  = Player");
+        System.out.println("PH = Player's Home");
+
+        for (Factory factory : getFactories()) {
+
+            String code = factory.getName()
+                    .replace("Factory ", "F");
+
+            System.out.println(code + "  = " + factory.getName());
+        }
+
+        for (House house : houses) {
+
+            String code = house.getName()
+                    .replace("House ", "H");
+
+            System.out.println(code + "  = " + house.getName());
+        }
+
+        System.out.println(".  = Empty tile");
+
+        printLine('=', totalWidth);
+    }
+
+
+    /**
+     * Prints a horizontal line using the specified character.
+     *
+     * @param symbol the character used to create the line
+     * @param length the length of the line
+     */
+    private void printLine(char symbol, int length) {
+
+        for (int i = 0; i < length; i++) {
+            System.out.print(symbol);
+        }
+
+        System.out.println();
     }
 
     /**
