@@ -1,3 +1,4 @@
+package model; 
 /**
  * Represents a factory in the Candy Courier game.
  * Manages the candy production grid, generates random candies,

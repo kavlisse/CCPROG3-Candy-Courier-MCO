@@ -1,3 +1,4 @@
+package model; 
 /**
  * Represents the player in the Candy Courier game.
  * Stores the player's information, handles XP accumulation,

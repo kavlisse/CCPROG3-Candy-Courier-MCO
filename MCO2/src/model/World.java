@@ -1,3 +1,4 @@
+package model; 
 import java.util.ArrayList;
 /**
  * Represents the world grid in the Candy Courier game.

@@ -1,3 +1,4 @@
+package model; 
 
 /**
  * Represents the general structure of a building in the Candy Courier game.

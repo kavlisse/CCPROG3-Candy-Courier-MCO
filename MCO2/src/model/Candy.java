@@ -1,3 +1,4 @@
+package model; 
 
 /**
  * Represents a candy produced by a factory

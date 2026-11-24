@@ -1,3 +1,4 @@
+package model; 
 /**
  * Represents a house in the Candy Courier game.
  * Stores the house's candy orders, required quantities,
