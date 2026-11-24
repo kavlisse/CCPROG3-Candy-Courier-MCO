@@ -61,16 +61,31 @@ public class LeaderboardController {
      *
      * @param record the player's completed game record
      */
-    public void savePlayerRecord(PlayerRecord record) {
+    public boolean savePlayerRecord(PlayerRecord record) {
 
         if (record == null) {
-            return;
+            return false;
         }
 
-        leaderboard.addRecord(record);
-        fileHandler.saveRecords(leaderboard.getRecords());
-    }
+        // Keep the current records in case saving fails.
+        ArrayList<PlayerRecord> previousRecords =
+            leaderboard.getRecords();
 
+        // Add the new record and save the updated leaderboard.
+        leaderboard.addRecord(record);
+
+        boolean saved = fileHandler.saveRecords(
+            leaderboard.getRecords()
+        );
+
+        // Restore the previous records if saving was unsuccessful.
+        if (!saved) {
+            leaderboard.setRecords(previousRecords);
+            return false;
+        }
+
+        return true;
+    }
 
     // ==========================================
     // LEADERBOARD INFORMATION

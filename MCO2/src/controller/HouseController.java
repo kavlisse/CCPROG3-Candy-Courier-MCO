@@ -42,9 +42,36 @@ public class HouseController {
      */
     public boolean canInteractWithHouse(House house) {
 
-        return game.isRunning()
-                && game.getPlayer() != null
-                && house != null;
+        if (game == null || !game.isRunning()
+                || game.getPlayer() == null
+                || house == null || house.isDelivered()) {
+            return false;
+        }
+
+        return isHouseInWorld(house);
+    }
+
+
+    /**
+     * Checks whether a house belongs to the current game world.
+     *
+     * @param house the house to check
+     * @return true if the house belongs to the current world
+     */
+    private boolean isHouseInWorld(House house) {
+
+        if (game.getWorld() == null) {
+            return false;
+        }
+
+        for (House currentHouse : game.getWorld().getHouses()) {
+
+            if (currentHouse == house) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
@@ -61,7 +88,7 @@ public class HouseController {
      */
     public boolean hasEnoughCandy(House house) {
 
-        if (!canInteractWithHouse(house) || house.isDelivered()) {
+        if (!canInteractWithHouse(house)) {
             return false;
         }
 
@@ -98,7 +125,7 @@ public class HouseController {
      */
     public ArrayList<House> getHouses() {
 
-        if (game.getWorld() == null) {
+        if (game == null || game.getWorld() == null) {
             return new ArrayList<>();
         }
 
@@ -115,7 +142,7 @@ public class HouseController {
      */
     public ArrayList<House> getHousesAt(int row, int column) {
 
-        if (game.getWorld() == null) {
+        if (game == null || game.getWorld() == null) {
             return new ArrayList<>();
         }
 

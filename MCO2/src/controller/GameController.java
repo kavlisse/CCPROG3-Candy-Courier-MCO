@@ -1,11 +1,16 @@
 
 package controller;
 
+import java.util.ArrayList;
+
 import model.Game;
+import model.PlayerRecord;
+import model.Building;
+import model.House;
 
 /**
- * Controls the main game flow and coordinates
- * game-related actions.
+ * Controls the overall game flow and coordinates
+ * the different controllers.
  *
  * @author Katelyn and Shaira
  * @version 1.0
@@ -15,14 +20,53 @@ public class GameController {
     /** The game being controlled. */
     private Game game;
 
+    /** Controls player movement and position. */
+    private PlayerController playerController;
+
+    /** Controls factory interactions. */
+    private FactoryController factoryController;
+
+    /** Controls house interactions. */
+    private HouseController houseController;
+
+    /** Controls inventory interactions. */
+    private InventoryController inventoryController;
+
+    /** Controls leaderboard operations. */
+    private LeaderboardController leaderboardController;
+
+    /** Tracks whether the final player record was saved. */
+    private boolean recordSaved;
+
 
     /**
-     * Constructs a GameController for the specified game.
+     * Constructs a GameController and initializes
+     * the other controllers.
      *
-     * @param game the game to control
+     * @param game the game being controlled
+     * @param leaderboardController the leaderboard controller
      */
-    public GameController(Game game) {
+    public GameController(
+            Game game,
+            LeaderboardController leaderboardController) {
+
+        if (game == null || leaderboardController == null) {
+            throw new IllegalArgumentException(
+                "Game and LeaderboardController cannot be null."
+            );
+        }
+
         this.game = game;
+        this.leaderboardController = leaderboardController;
+
+        this.playerController = new PlayerController(game);
+        this.factoryController = new FactoryController(game);
+        this.houseController = new HouseController(game);
+        this.inventoryController = new InventoryController(game);
+
+        this.recordSaved = false;
+
+        this.leaderboardController.loadLeaderboard();
     }
 
 
@@ -31,9 +75,9 @@ public class GameController {
     // ==========================================
 
     /**
-     * Starts a new game by initializing the player.
+     * Initializes a new player.
      *
-     * @param playerName the name of the player
+     * @param playerName the player's name
      */
     public void startGame(String playerName) {
 
@@ -41,7 +85,13 @@ public class GameController {
             return;
         }
 
+        // Prevent initializing another player in an existing session.
+        if (game.getPlayer() != null || !game.isRunning()) {
+            return;
+        }
+
         game.initializePlayer(playerName.trim());
+        recordSaved = false;
     }
 
 
@@ -50,10 +100,10 @@ public class GameController {
     // ==========================================
 
     /**
-     * Processes the player's main menu selection.
+     * Handles the player's main menu selection.
      *
      * @param choice the selected menu option
-     * @return the action associated with the selected option
+     * @return the corresponding menu action
      */
     public MenuAction handleMenuChoice(int choice) {
 
@@ -85,52 +135,233 @@ public class GameController {
 
 
     // ==========================================
-    // PLAYER'S HOME
+    // PLAYER MOVEMENT
     // ==========================================
 
     /**
-     * Handles the player's decision to end the current day.
+     * Moves the player in the specified direction.
      *
-     * @param confirm true if the player wants to end the day
+     * @param direction the movement direction
+     * @return true if movement is successful
+     */
+    public boolean movePlayer(String direction) {
+
+        if (!game.isRunning() || game.getPlayer() == null) {
+            return false;
+        }
+
+        return playerController.movePlayer(direction);
+    }
+
+
+    /**
+     * Returns the building at the player's current position.
+     *
+     * @return the current building, or null if none exists
+     */
+    public Building getCurrentBuilding() {
+
+        return playerController.getCurrentBuilding();
+    }
+
+
+    /**
+     * Returns all houses at the player's current position.
+     *
+     * @return the houses at the current location
+     */
+    public ArrayList<House> getHousesAtCurrentLocation() {
+
+        int row = playerController.getCurrentRow();
+        int column = playerController.getCurrentColumn();
+
+        if (row < 0 || column < 0) {
+            return new ArrayList<>();
+        }
+
+        return houseController.getHousesAt(row, column);
+    }
+
+
+    // ==========================================
+    // PLAYER HOME
+    // ==========================================
+
+    /**
+     * Handles interaction with the player's home.
+     *
+     * Advances the day when the player confirms.
+     *
+     * @param confirm true if the player wants to advance the day
      */
     public void handlePlayerHome(boolean confirm) {
 
-        if (confirm && game.isRunning()) {
+        if (confirm && game.isRunning()
+                && game.getPlayer() != null) {
+
             game.advanceDay();
         }
     }
 
 
     // ==========================================
-    // GAME EXIT
+    // HOUSE ORDER DELIVERY
     // ==========================================
 
     /**
-     * Ends the current game session.
+     * Handles house order delivery through HouseController.
+     *
+     * @param house the house whose order will be delivered
+     * @return true if delivery is successful
      */
-    public void quitGame() {
-        game.endGame();
+    public boolean deliverHouseOrder(House house) {
+
+        if (!game.isRunning() || game.getPlayer() == null) {
+            return false;
+        }
+
+        boolean successful = houseController.deliverOrder(house);
+
+        if (successful) {
+            checkGameCompletion();
+        }
+
+        return successful;
     }
 
 
     // ==========================================
-    // GENERAL GETTERS
+    // GAME COMPLETION
     // ==========================================
+
+    /**
+     * Checks whether the game has ended.
+     *
+     * Saves the final player record after automatic completion.
+     */
+    private void checkGameCompletion() {
+
+        if (!game.isRunning()) {
+            saveFinalRecord();
+        }
+    }
+
+
+    /**
+     * Ends the game and saves the player's final record.
+     */
+    public void quitGame() {
+
+        if (game.getPlayer() == null) {
+            game.endGame();
+            return;
+        }
+
+        game.endGame();
+        saveFinalRecord();
+    }
+
+
+    /**
+     * Saves the player's final game record.
+     *
+     * Prevents duplicate saving after a successful save.
+     */
+    private void saveFinalRecord() {
+
+        if (recordSaved || game.getPlayer() == null) {
+            return;
+        }
+
+        PlayerRecord record = new PlayerRecord(
+            game.getPlayer().getName(),
+            game.getPlayer().getStarRank(),
+            game.getDayNum(),
+            game.getPlayer().getTotalSteps()
+        );
+
+        boolean saved =
+            leaderboardController.savePlayerRecord(record);
+
+        if (saved) {
+            recordSaved = true;
+        }
+    }
+
+
+    // ==========================================
+    // CONTROLLER ACCESSORS
+    // ==========================================
+
+    /**
+     * Returns the player controller.
+     *
+     * @return the player controller
+     */
+    public PlayerController getPlayerController() {
+        return playerController;
+    }
+
+
+    /**
+     * Returns the factory controller.
+     *
+     * @return the factory controller
+     */
+    public FactoryController getFactoryController() {
+        return factoryController;
+    }
+
+
+    /**
+     * Returns the house controller.
+     *
+     * @return the house controller
+     */
+    public HouseController getHouseController() {
+        return houseController;
+    }
+
+
+    /**
+     * Returns the inventory controller.
+     *
+     * @return the inventory controller
+     */
+    public InventoryController getInventoryController() {
+        return inventoryController;
+    }
+
+
+    /**
+     * Returns the leaderboard controller.
+     *
+     * @return the leaderboard controller
+     */
+    public LeaderboardController getLeaderboardController() {
+        return leaderboardController;
+    }
+
 
     /**
      * Returns the current game.
      *
-     * @return the game
+     * @return the game model
      */
     public Game getGame() {
         return game;
     }
 
 
+    // ==========================================
+    // MENU ACTIONS
+    // ==========================================
+
     /**
      * Represents the available main menu actions.
      */
     public enum MenuAction {
+
         TRAVEL,
         INVENTORY,
         SEARCH_CANDIES,
