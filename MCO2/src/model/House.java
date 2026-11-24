@@ -8,10 +8,6 @@
  */
 public class House extends Building {
 
-    // ==========================================
-    // HOUSE DELIVERY SYSTEM
-    // ==========================================
-
     /** The candies required by the house. */
     private Candy[] requiredCandies;
 
@@ -53,7 +49,7 @@ public class House extends Building {
      * @return the required candies
      */
     public Candy[] getRequiredCandies() {
-        return requiredCandies;
+        return requiredCandies.clone();
     }
 
     /**
@@ -62,7 +58,7 @@ public class House extends Building {
      * @return the required candy quantities
      */
     public int[] getRequiredQuantities() {
-        return requiredQuantities;
+        return requiredQuantities.clone();
     }
 
     /**

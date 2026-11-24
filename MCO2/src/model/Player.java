@@ -35,10 +35,6 @@ public class Player {
     private int column;
 
 
-    // ==========================================
-    // CONSTRUCTOR
-    // ==========================================
-
     /**
      * Constructs a new Player with an initial XP of 0,
      * a rank of 0 stars, and an inventory capacity of 20.
@@ -208,6 +204,7 @@ public class Player {
         return column;
     }
 
+
     /**
      * Attempts to move the player in the specified direction.
      * Diagonal movement is only available to players with at least 3 stars.
@@ -217,6 +214,10 @@ public class Player {
      * @return true if the movement is successful; false otherwise
      */
     public boolean move(String direction, int worldSize) {
+
+        if (direction == null) {
+            return false;
+        }
 
         int newRow = row;
         int newColumn = column;
@@ -238,7 +239,6 @@ public class Player {
         // Diagonal movement (unlocked at 3 stars)
         else if (direction.equalsIgnoreCase("up-left")) {
             if (!canMoveDiagonally()) {
-                System.out.println("Diagonal movement is locked. Reach 3 stars to unlock it.");
                 return false;
             }
             newRow--;
@@ -246,7 +246,6 @@ public class Player {
         }
         else if (direction.equalsIgnoreCase("up-right")) {
             if (!canMoveDiagonally()) {
-                System.out.println("Diagonal movement is locked. Reach 3 stars to unlock it.");
                 return false;
             }
             newRow--;
@@ -254,7 +253,6 @@ public class Player {
         }
         else if (direction.equalsIgnoreCase("down-left")) {
             if (!canMoveDiagonally()) {
-                System.out.println("Diagonal movement is locked. Reach 3 stars to unlock it.");
                 return false;
             }
             newRow++;
@@ -262,23 +260,18 @@ public class Player {
         }
         else if (direction.equalsIgnoreCase("down-right")) {
             if (!canMoveDiagonally()) {
-                System.out.println("Diagonal movement is locked. Reach 3 stars to unlock it.");
                 return false;
             }
             newRow++;
             newColumn++;
         }
         else {
-            System.out.println("Invalid movement direction.");
             return false;
         }
 
         // Prevent movement outside the world boundaries.
         if (newRow < 0 || newRow >= worldSize ||
             newColumn < 0 || newColumn >= worldSize) {
-
-            System.out.println("You cannot move beyond the world boundaries.");
-            System.out.println("Current position: (" + row + ", " + column + ")");
             return false;
         }
 
@@ -286,9 +279,6 @@ public class Player {
         row = newRow;
         column = newColumn;
         totalSteps++;
-
-        System.out.println("You moved " + direction.toLowerCase() + ".");
-        System.out.println("New position: (" + row + ", " + column + ")");
 
         return true;
     }

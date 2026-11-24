@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
  * Controls the Candy Courier game and coordinates
@@ -9,10 +8,6 @@ import java.util.Scanner;
  * @version 1.3
  */
 public class Game {
-
-    // ==========================================
-    // GENERAL GAME ATTRIBUTES
-    // ==========================================
 
     /** The player participating in the game. */
     private Player player;
@@ -26,18 +21,12 @@ public class Game {
     /** Indicates whether the game is currently running. */
     private boolean isRunning;
 
-    /** Scanner used to receive player input. */
-    private Scanner input;
-
     /** The highest rank for which houses have already been initialized. */
     private int highestHouseRankAdded = -1;
 
     /** Tracks the highest rank for which factories have been introduced. */
     private int highestFactoryRankAdded = -1;
 
-    // ==========================================
-    // CONSTRUCTOR
-    // ==========================================
 
     /**
      * Constructs a new game with the initial world size,
@@ -47,7 +36,6 @@ public class Game {
         this.world = new World(7);
         this.dayNum = 1;
         this.isRunning = true;
-        this.input = new Scanner(System.in);
     }
 
 
@@ -155,9 +143,6 @@ public class Game {
                 player.updatePosition(
                         player.getRow() + offset,
                         player.getColumn() + offset);
-
-                System.out.println("\nThe world has expanded to " +
-                        newSize + " x " + newSize + "!");
             }
 
             // Expand all existing factory production grids.
@@ -183,24 +168,14 @@ public class Game {
      * @param xp the experience points earned
      */
     public void awardXP(int xp) {
-
         int previousRank = player.getStarRank();
 
         player.addXP(xp);
 
         if (player.getStarRank() > previousRank) {
-
             updateRankUnlocks();
-
-            System.out.println("Congratulations! You reached "
-                    + player.getStarRank() + " stars!");
-
-            System.out.println("Your inventory capacity is now "
-                    + player.getInventory().getCapacity() + ".");
         }
 
-        // The game ends only after the player reaches 5 stars AND
-        // completes every house order in the world.
         checkGameCompletion();
     }
 
@@ -214,16 +189,6 @@ public class Game {
 
         if (player != null && player.hasReachedMaxRank()
                 && areAllHouseOrdersDelivered()) {
-
-            System.out.println("\n========================================");
-            System.out.println("CONGRATULATIONS, " + player.getName() + "!");
-            System.out.println("You are now a 5-star Candy Courier!");
-            System.out.println("You have completed every delivery!");
-            System.out.println("========================================");
-
-            System.out.println("\n========== FINAL PLAYER STATS ==========");
-            viewPlayerInfo();
-            System.out.println("Thank you for playing Candy Courier!");
 
             isRunning = false;
         }
@@ -447,8 +412,6 @@ public class Game {
         factory.expandProductionGrid(player.getFactoryGridSize());
         world.placeBuilding(factory, actualRow, actualColumn);
 
-        System.out.println(name + " has been introduced at (" +
-                actualRow + ", " + actualColumn + ")!");
     }
 
 

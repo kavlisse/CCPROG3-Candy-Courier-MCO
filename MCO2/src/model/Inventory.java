@@ -83,36 +83,12 @@ public class Inventory {
     }
 
     /**
-     * Displays all candies currently stored in the inventory,
-     * including their flavors when applicable.
+     * Returns a copy of the candies currently stored in the inventory.
+     *
+     * @return a copy of the inventory's candy list
      */
-    public void displayInventory() {
-
-        System.out.println("\n===== PLAYER INVENTORY =====");
-        System.out.println("Capacity: " + getCandyCount() + "/" + capacity);
-
-        if (candies.isEmpty()) {
-            System.out.println("Your inventory is empty!");
-        }
-        else {
-            for (int i = 0; i < candies.size(); i++) {
-
-                Candy candy = candies.get(i);
-
-                String candyName = candy.getCandyType();
-                String flavor = candy.getCandyFlavor();
-
-                // Display the flavor only when the candy has one.
-                if (flavor != null
-                        && !flavor.equalsIgnoreCase("N/A")) {
-                    candyName += " (" + flavor + ")";
-                }
-
-                System.out.println((i + 1) + ". " + candyName);
-            }
-        }
-
-        System.out.println("==============================");
+    public ArrayList<Candy> getCandies() {
+        return new ArrayList<>(candies);
     }
 
     /**

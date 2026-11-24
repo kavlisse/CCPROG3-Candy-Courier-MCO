@@ -5,7 +5,7 @@
  * player reaches a higher star rank.
  *
  * @author Katelyn and Shaira
- * @version 1.2
+ * @version 2
  */
 public class Factory extends Building {
 
@@ -17,11 +17,6 @@ public class Factory extends Building {
 
     /** The current dimension of the square production grid. */
     private int gridSize;
-
-
-    // ==========================================
-    // CONSTRUCTOR
-    // ==========================================
 
     /**
      * Constructs a Factory with the specified name, location,
@@ -159,8 +154,6 @@ public class Factory extends Building {
         // Check whether the selected position is within the grid.
         if (row < 0 || row >= gridSize ||
             column < 0 || column >= gridSize) {
-
-            System.out.println("Invalid factory position.");
             return false;
         }
 
@@ -169,160 +162,19 @@ public class Factory extends Building {
 
         // Check whether the selected slot contains a candy.
         if (candy == null) {
-            System.out.println("There is no candy in this slot.");
             return false;
         }
 
         // Check whether the inventory can accept the candy.
         if (!inventory.addCandy(candy)) {
-            System.out.println("Your inventory is full! You cannot pick up more candies.");
             return false;
         }
 
         // Remove the candy after a successful pickup.
         productionGrid[row][column] = null;
 
-        System.out.println("Successfully picked up " +
-                getCandyDisplayName(candy) + "!");
-
         return true;
     }
-
-
-    /**
-     * Displays the candies currently available in the factory
-     * using a properly formatted two-dimensional grid.
-     * Empty slots are represented by a dash.
-     */
-    public void displayProductionGrid() {
-
-        int rowHeaderWidth = 8;
-        int cellWidth = 10;
-
-        // Determine the required width based on the longest candy name.
-        for (Candy candy : allowedCandies) {
-
-            String candyName = getCandyDisplayName(candy);
-
-            if (candyName.length() + 4 > cellWidth) {
-                cellWidth = candyName.length() + 4;
-            }
-        }
-
-        // Calculate the total width of the grid.
-        int totalWidth = 1 + rowHeaderWidth + 1
-                + gridSize * (cellWidth + 1);
-
-        // Display factory title.
-        printGridBorder(rowHeaderWidth, cellWidth);
-
-        String title = getName().toUpperCase()
-                + " - PRODUCTION GRID ("
-                + gridSize + " x " + gridSize + ")";
-
-        int padding = (totalWidth - title.length()) / 2;
-
-        for (int i = 0; i < padding; i++) {
-            System.out.print(" ");
-        }
-
-        System.out.println(title);
-
-        // Display top border.
-        printGridBorder(rowHeaderWidth, cellWidth);
-
-        // Display column headings.
-        System.out.printf("|%-" + rowHeaderWidth + "s|", "Row/Col");
-
-        for (int column = 0; column < gridSize; column++) {
-            System.out.printf("%" + cellWidth + "d|", column);
-        }
-
-        System.out.println();
-
-        // Separate column headings from candy slots.
-        printGridBorder(rowHeaderWidth, cellWidth);
-
-        // Display candy production grid.
-        for (int row = 0; row < gridSize; row++) {
-
-            System.out.printf("|%-" + rowHeaderWidth + "d|", row);
-
-            for (int column = 0; column < gridSize; column++) {
-
-                Candy candy = productionGrid[row][column];
-
-                String cellContent;
-
-                if (candy == null) {
-                    cellContent = "[ - ]";
-                }
-                else {
-                    cellContent = "[ "
-                            + getCandyDisplayName(candy)
-                            + " ]";
-                }
-
-                System.out.printf("%-" + cellWidth + "s|", cellContent);
-            }
-
-            System.out.println();
-
-            // Separate each row.
-            printGridBorder(rowHeaderWidth, cellWidth);
-        }
-
-        System.out.println("\nCoordinates start at 0.");
-    }
-
-
-    /**
-     * Prints a horizontal border for the factory production grid.
-     *
-     * @param rowHeaderWidth the width of the row heading
-     * @param cellWidth the width of each candy cell
-     */
-    private void printGridBorder(int rowHeaderWidth, int cellWidth) {
-
-        System.out.print("+");
-
-        for (int i = 0; i < rowHeaderWidth; i++) {
-            System.out.print("-");
-        }
-
-        System.out.print("+");
-
-        for (int column = 0; column < gridSize; column++) {
-
-            for (int i = 0; i < cellWidth; i++) {
-                System.out.print("-");
-            }
-
-            System.out.print("+");
-        }
-
-        System.out.println();
-    }
-
-
-    /**
-     * Returns the candy type and flavor in a readable display format.
-     *
-     * @param candy the candy to display
-     * @return the candy type with its flavor when applicable
-     */
-    private String getCandyDisplayName(Candy candy) {
-
-        String candyName = candy.getCandyType();
-        String flavor = candy.getCandyFlavor();
-
-        if (flavor != null && !flavor.equalsIgnoreCase("N/A")) {
-            candyName += " (" + flavor + ")";
-        }
-
-        return candyName;
-    }
-
 
     // ==========================================
     // FACTORY CANDY SEARCH
@@ -345,6 +197,41 @@ public class Factory extends Building {
         }
 
         return false;
+    }
+
+    /**
+     * Returns the candy at the specified production grid position.
+     *
+     * @param row the selected row
+     * @param column the selected column
+     * @return the candy at that position, or null if invalid or empty
+     */
+    public Candy getCandyAt(int row, int column) {
+
+        if (row < 0 || row >= gridSize ||
+            column < 0 || column >= gridSize) {
+            return null;
+        }
+
+        return productionGrid[row][column];
+    }
+
+    /**
+     * Returns a copy of the factory's production grid.
+     *
+     * @return a copy of the production grid
+     */
+    public Candy[][] getProductionGrid() {
+
+        Candy[][] copy = new Candy[gridSize][gridSize];
+
+        for (int row = 0; row < gridSize; row++) {
+            for (int column = 0; column < gridSize; column++) {
+                copy[row][column] = productionGrid[row][column];
+            }
+        }
+
+        return copy;
     }
 
     /**
