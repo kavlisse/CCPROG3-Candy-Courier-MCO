@@ -1,3 +1,4 @@
+
 package view;
 
 import java.awt.*;
@@ -6,9 +7,20 @@ import javax.swing.*;
 import controller.GameController;
 import model.Player;
 
+/**
+ * Displays the player's courier profile
+ *
+ * @author Katelyn and Shaira
+ * @version 1.0
+ */
 class PlayerInfoScreen extends JPanel {
 
+    private final GameController controller;
+    private final JTextArea info;
+
     PlayerInfoScreen(GameController c) {
+
+        this.controller = c;
 
         setLayout(new BorderLayout(10, 10));
         setBackground(Ui.CREAM);
@@ -18,9 +30,34 @@ class PlayerInfoScreen extends JPanel {
             BorderLayout.NORTH
         );
 
-        Player p = c.getGame().getPlayer();
+        info = new JTextArea();
+        info.setEditable(false);
 
-        JTextArea a = new JTextArea(
+        info.setFont(
+            new Font("SansSerif", Font.PLAIN, 17)
+        );
+
+        info.setBackground(Color.WHITE);
+
+        info.setBorder(
+            BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        );
+
+        add(info, BorderLayout.CENTER);
+
+        refresh();
+    }
+
+    public void refresh() {
+
+        Player p = controller.getGame().getPlayer();
+
+        if (p == null) {
+            info.setText("No player information available yet.");
+            return;
+        }
+
+        info.setText(
             "Name: " + p.getName() +
             "\nStar rank: " + p.getStarRank() +
             "\nTotal XP: " + p.getTotalXP() +
@@ -28,25 +65,11 @@ class PlayerInfoScreen extends JPanel {
             p.getXPNeededForNextRank() +
             "\nTotal steps: " + p.getTotalSteps() +
             "\nWorld size: " +
-            c.getGame().getWorld().getGridSize() +
+            controller.getGame().getWorld().getGridSize() +
             " × " +
-            c.getGame().getWorld().getGridSize() +
+            controller.getGame().getWorld().getGridSize() +
             "\nInventory capacity: " +
             p.getInventory().getCapacity()
         );
-
-        a.setEditable(false);
-
-        a.setFont(
-            new Font("SansSerif", Font.PLAIN, 17)
-        );
-
-        a.setBackground(Color.WHITE);
-
-        a.setBorder(
-            BorderFactory.createEmptyBorder(20, 20, 20, 20)
-        );
-
-        add(a, BorderLayout.CENTER);
     }
 }

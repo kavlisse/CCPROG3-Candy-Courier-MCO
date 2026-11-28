@@ -1,3 +1,4 @@
+
 package view;
 
 import java.awt.*;
@@ -34,7 +35,11 @@ public class MainFrame extends JFrame {
         menu = new MainMenuPanel(this);
         setup = new PlayerSetupPanel(this);
         gameplay = new GamePanel(this, controller);
-        leaderboard = new LeaderboardPanel(this, controller);
+
+        leaderboard = new LeaderboardPanel(
+            controller.getLeaderboardController(),
+            () -> showMenu()
+        );
 
         root.add(menu, "menu");
         root.add(setup, "setup");
@@ -64,7 +69,7 @@ public class MainFrame extends JFrame {
     }
 
     public void showLeaderboard() {
-        leaderboard.refresh();
+        leaderboard.refreshLeaderboard();
         cards.show(root, "leaderboard");
     }
 
