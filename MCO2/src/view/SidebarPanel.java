@@ -1,3 +1,4 @@
+
 package view;
 
 import java.awt.*;
@@ -7,47 +8,63 @@ public class SidebarPanel extends JPanel {
 
     public SidebarPanel(GamePanel game) {
 
-        setLayout(new GridLayout(0, 1, 6, 6));
+        setLayout(new GridLayout(0, 1, 8, 8));
         setBackground(Ui.CREAM);
 
         setBorder(
             BorderFactory.createEmptyBorder(8, 8, 8, 8)
         );
 
-        addNav("World", () -> game.showWorld());
+        addNav("WORLD", () -> game.showWorld(), true);
 
         addNav(
-            "Inventory",
-            () -> game.showInventory()
+            "INVENTORY",
+            () -> game.showInventory(),
+            false
         );
 
         addNav(
-            "Orders",
-            () -> game.showOrders()
+            "ORDERS",
+            () -> game.showOrders(),
+            false
         );
 
         addNav(
-            "Search candies",
-            () -> game.showSearch()
+            "CANDY SEARCH",
+            () -> game.showSearch(),
+            false
         );
 
         addNav(
-            "Player info",
-            () -> game.showPlayerInfo()
+            "PLAYER PROFILE",
+            () -> game.showPlayerInfo(),
+            false
         );
 
         addNav(
-            "Main menu",
-            () -> game.returnToMenu()
+            "MAIN MENU",
+            () -> game.returnToMenu(),
+            false
         );
     }
 
     private void addNav(
         String text,
-        Runnable action
+        Runnable action,
+        boolean primary
     ) {
 
-        JButton b = Ui.button(text);
+        JButton b = primary
+            ? Ui.button(text)
+            : Ui.secondaryButton(text);
+
+        b.setFont(
+            new Font("Trebuchet MS", Font.BOLD, 13)
+        );
+
+        b.setPreferredSize(new Dimension(145, 65));
+        b.setFocusPainted(false);
+
         b.addActionListener(e -> action.run());
 
         add(b);

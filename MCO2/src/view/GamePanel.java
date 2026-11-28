@@ -2,6 +2,7 @@
 package view;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 
 import controller.*;
@@ -18,11 +19,12 @@ public class GamePanel extends JPanel {
     private final PlayerInfoPanel playerInfo =
         new PlayerInfoPanel();
 
+    private final PlayerInfoScreen playerInfoScreen;
+
     private final WorldPanel worldPanel;
     private final InventoryPanel inventoryPanel;
     private final OrdersPanel ordersPanel;
     private final CandySearchPanel searchPanel;
-    private final PlayerInfoScreen playerScreen;
 
     private final JLabel status =
         new JLabel("Welcome, courier!");
@@ -46,48 +48,89 @@ public class GamePanel extends JPanel {
         inventoryPanel = new InventoryPanel(controller);
         ordersPanel = new OrdersPanel(controller);
         searchPanel = new CandySearchPanel(controller);
-        playerScreen = new PlayerInfoScreen(controller);
+
+        playerInfoScreen = new PlayerInfoScreen(controller);
 
         content.add(worldPanel, "world");
         content.add(inventoryPanel, "inventory");
         content.add(ordersPanel, "orders");
         content.add(searchPanel, "search");
-        content.add(playerScreen, "player");
+        content.add(playerInfoScreen, "player");
 
         add(playerInfo, BorderLayout.NORTH);
         add(new SidebarPanel(this), BorderLayout.WEST);
         add(content, BorderLayout.CENTER);
 
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.setOpaque(false);
-
-        JPanel arrows = new JPanel(
-            new GridLayout(2, 3, 5, 5)
+        // Movement controls
+        JPanel bottom = new JPanel(new BorderLayout(20, 10));
+        bottom.setBackground(Ui.CREAM);
+        bottom.setBorder(
+            BorderFactory.createEmptyBorder(8, 0, 0, 0)
         );
-        arrows.setOpaque(false);
 
-        arrows.add(new JLabel());
-        moveButton(arrows, "↑", "up");
-        arrows.add(new JLabel());
+        JPanel movementArea = new JPanel(new BorderLayout(5, 5));
+        movementArea.setBackground(Ui.CREAM);
 
-        moveButton(arrows, "←", "left");
-        moveButton(arrows, "↓", "down");
-        moveButton(arrows, "→", "right");
+        JLabel movementTitle = Ui.label("MOVEMENT");
+        movementTitle.setFont(
+            new Font("Trebuchet MS", Font.BOLD, 12)
+        );
+        movementTitle.setForeground(Ui.DARK);
 
-        bottom.add(arrows, BorderLayout.WEST);
+        movementArea.add(movementTitle, BorderLayout.NORTH);
 
-        JButton interact = Ui.button("INTERACT HERE");
+        JPanel directions = new JPanel(
+            new GridLayout(2, 3, 6, 6)
+        );
+        directions.setBackground(Ui.CREAM);
+
+        directions.add(new JLabel());
+
+        moveButton(directions, "UP", "up");
+
+        directions.add(new JLabel());
+
+        moveButton(directions, "LEFT", "left");
+        moveButton(directions, "DOWN", "down");
+        moveButton(directions, "RIGHT", "right");
+
+        movementArea.add(directions, BorderLayout.CENTER);
+
+        bottom.add(movementArea, BorderLayout.WEST);
+
+        // Interaction area
+        JPanel interactionArea = new JPanel(new BorderLayout());
+        interactionArea.setBackground(Ui.CREAM);
+        interactionArea.setBorder(
+            BorderFactory.createEmptyBorder(20, 35, 0, 0)
+        );
+
+        JButton interact = Ui.button("INTERACT WITH LOCATION");
+
+        interact.setPreferredSize(
+            new Dimension(270, 65)
+        );
 
         interact.addActionListener(
             e -> interactCurrentLocation()
         );
 
-        bottom.add(interact, BorderLayout.CENTER);
+        interactionArea.add(interact, BorderLayout.CENTER);
 
+        bottom.add(interactionArea, BorderLayout.CENTER);
+
+        // Status message
         status.setForeground(Ui.DARK);
+        status.setFont(
+            new Font("Trebuchet MS", Font.BOLD, 13)
+        );
+
         bottom.add(status, BorderLayout.SOUTH);
 
         add(bottom, BorderLayout.SOUTH);
+
+        // Enable keyboard movement
+        installMovementKeys();
     }
 
     private void moveButton(
@@ -98,39 +141,87 @@ public class GamePanel extends JPanel {
 
         JButton b = Ui.button(label);
 
-        b.addActionListener(e -> {
-            if (controller.movePlayer(dir)) {
-                status.setText("Moved " + dir + ".");
-                refreshAll();
-            } else {
-                status.setText(
-                    "You cannot move that way."
-                );
-            }
-        });
+        b.setPreferredSize(new Dimension(75, 48));
+        b.setFont(
+            new Font("Trebuchet MS", Font.BOLD, 12)
+        );
+
+        b.addActionListener(e -> move(dir));
 
         p.add(b);
+    }
+
+    private void move(String direction) {
+
+        if (controller.movePlayer(direction)) {
+
+            status.setText("Moved " + direction + ".");
+            refreshAll();
+
+        } else {
+
+            status.setText("You cannot move that way.");
+        }
+    }
+
+    private void installMovementKeys() {
+
+        InputMap input = getInputMap(
+            JComponent.WHEN_IN_FOCUSED_WINDOW
+        );
+
+        ActionMap actions = getActionMap();
+
+        // Arrow keys
+        bindKey(input, actions, KeyEvent.VK_UP, "moveUp", "up");
+        bindKey(input, actions, KeyEvent.VK_DOWN, "moveDown", "down");
+        bindKey(input, actions, KeyEvent.VK_LEFT, "moveLeft", "left");
+        bindKey(input, actions, KeyEvent.VK_RIGHT, "moveRight", "right");
+
+        // WASD keys
+        bindKey(input, actions, KeyEvent.VK_W, "moveW", "up");
+        bindKey(input, actions, KeyEvent.VK_S, "moveS", "down");
+        bindKey(input, actions, KeyEvent.VK_A, "moveA", "left");
+        bindKey(input, actions, KeyEvent.VK_D, "moveD", "right");
+    }
+
+    private void bindKey(
+        InputMap input,
+        ActionMap actions,
+        int key,
+        String actionName,
+        String direction
+    ) {
+
+        input.put(
+            KeyStroke.getKeyStroke(key, 0),
+            actionName
+        );
+
+        actions.put(actionName, new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                move(direction);
+            }
+        });
     }
 
     public void refreshAll() {
 
         Player p = controller.getGame().getPlayer();
 
-        if (p == null) {
-            return;
-        }
-
         playerInfo.refresh(
             p,
             controller.getGame().getDayNum()
         );
 
-        playerScreen.refresh();
-
         worldPanel.refresh();
         inventoryPanel.refresh();
         ordersPanel.refresh();
         searchPanel.refresh();
+
+        playerInfoScreen.refresh();
     }
 
     public void showWorld() {
@@ -149,11 +240,12 @@ public class GamePanel extends JPanel {
     }
 
     public void showSearch() {
+        searchPanel.refresh();
         contentCards.show(content, "search");
     }
 
     public void showPlayerInfo() {
-        playerScreen.refresh();
+        playerInfoScreen.refresh();
         contentCards.show(content, "player");
     }
 
@@ -183,6 +275,8 @@ public class GamePanel extends JPanel {
                 (Factory) b
             );
 
+            refreshAll();
+
         } else if (b instanceof House) {
 
             HousePanel.showDialog(
@@ -190,6 +284,8 @@ public class GamePanel extends JPanel {
                 controller,
                 (House) b
             );
+
+            refreshAll();
 
         } else if (b instanceof PlayerHome) {
 
