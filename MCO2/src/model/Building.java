@@ -7,7 +7,7 @@ package model;
  * @author Katelyn and Shaira
  * @version 1.1
  */
-public class Building {
+public abstract class Building {
 
     /** The name of the building. */
     private String name;
@@ -82,4 +82,12 @@ public class Building {
         this.row = row;
         this.column = column;
     }
+
+    /**
+     * Returns a description of the building.
+     *
+     * @return a description of the building
+     */
+    public abstract String getBuildingDescription();
+
 }

@@ -228,4 +228,29 @@ public class World {
         return gridSize;
     }
 
+    /**
+     * Returns the descriptions of all buildings currently placed in the world.
+     * Each building uses its own overridden getBuildingDescription() method.
+     *
+     * @return a list containing the descriptions of all buildings
+     */
+    public ArrayList<String> getBuildingDescriptions() {
+
+        ArrayList<String> descriptions = new ArrayList<>();
+
+        for (int row = 0; row < gridSize; row++) {
+            for (int column = 0; column < gridSize; column++) {
+
+                // A Building reference can refer to any Building subclass.
+                Building building = grid[row][column];
+
+                if (building != null) {
+                    descriptions.add(building.getBuildingDescription());
+                }
+            }
+        }
+
+        return descriptions;
+    }
+
 }

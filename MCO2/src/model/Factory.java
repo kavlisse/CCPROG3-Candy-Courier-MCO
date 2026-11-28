@@ -276,4 +276,15 @@ public class Factory extends Building {
         return allowedCandies;
     }
 
+    /**
+     * Returns a description of the factory and its candy production grid.
+     *
+     * @return a string describing the factory
+     */
+    @Override
+    public String getBuildingDescription() {
+        return getName() + " - Produces candies in a "
+                + gridSize + " x " + gridSize + " grid.";
+    }
+
 }

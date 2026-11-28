@@ -1,10 +1,18 @@
 
 import java.io.File;
-import java.util.ArrayList;
 
 import model.*;
 import controller.*;
 import persistence.*;
+
+import model.Building;
+import model.Factory;
+import model.House;
+import model.PlayerHome;
+import model.Candy;
+import model.World;
+
+import java.util.ArrayList;
 
 /**
  * Functional tests for the Candy Courier Model and Controller layers.
@@ -209,6 +217,9 @@ public class ControllerTest {
 
         runTest("40. Leaderboard file handler saves and loads multiple records",
                 ControllerTest::testMultipleLeaderboardRecords);
+        
+        runTest("41. Building inheritance, method overriding, and polymorphism",
+                ControllerTest::testBuildingPolymorphism);
 
         System.out.println("\n======================================");
         System.out.println(" TEST SUMMARY");
@@ -1867,5 +1878,57 @@ public class ControllerTest {
             file.delete();
         }
     }
+
+
+    /**
+     * Tests inheritance, method overriding, and polymorphism
+     * using the Building parent class and its subclasses.
+     */
+    private static void testBuildingPolymorphism() {
+
+        World world = new World(5);
+
+        // Create different Building subclass objects.
+        Building factory = new Factory(
+                "Test Factory",
+                0, 0,
+                new Candy[] {new Candy("Lollipop")},
+                2
+        );
+
+        Building house = new House(
+                "Test House",
+                1, 1,
+                new Candy[] {new Candy("Lollipop")},
+                new int[] {1},
+                100
+        );
+
+        Building home = new PlayerHome(2, 2);
+
+        // Place all buildings in the world.
+        world.placeBuilding(factory, 0, 0);
+        world.placeBuilding(house, 1, 1);
+        world.placeBuilding(home, 2, 2);
+
+        // Retrieve descriptions using the Building parent type.
+        ArrayList<String> descriptions =
+                world.getBuildingDescriptions();
+
+        // Verify that all buildings are recognized.
+        check(descriptions.size() == 3,
+                "Polymorphism: all three buildings are recognized.");
+
+        // Verify that each subclass uses its own overridden method.
+        check(descriptions.get(0).contains("Test Factory"),
+                "Polymorphism: Factory uses its own description.");
+
+        check(descriptions.get(1).contains("Test House"),
+                "Polymorphism: House uses its own description.");
+
+        check(descriptions.get(2).contains("home"),
+                "Polymorphism: PlayerHome uses its own description.");
+    }
+
 
 }

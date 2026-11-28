@@ -18,4 +18,14 @@ public class PlayerHome extends Building {
         super("Player's Home", row, column, 'H');
     }
 
+    /**
+     * Returns a description of the player's home.
+     *
+     * @return a string describing the player's home
+     */
+    @Override
+    public String getBuildingDescription() {
+        return "The player's home. You can rest here and advance to the next day.";
+    }
+
 }

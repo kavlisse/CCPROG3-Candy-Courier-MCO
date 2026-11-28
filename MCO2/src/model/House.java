@@ -141,4 +141,18 @@ public class House extends Building {
 
         return false;
     }
+
+    /**
+     * Returns a description of the house and its delivery order status.
+     *
+     * @return a string describing the house and its order status
+     */
+    @Override
+    public String getBuildingDescription() {
+        if (delivered) {
+            return getName() + " - Order completed!";
+        }
+
+        return getName() + " - Accepts candy deliveries.";
+    }
 }
