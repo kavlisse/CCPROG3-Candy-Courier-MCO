@@ -3,155 +3,130 @@ package view;
 
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 final class Ui {
-
-    // Main color palette
-    static final Color DARK = new Color(119, 48, 83);
-    static final Color BERRY = new Color(173, 76, 119);
-    static final Color PINK = new Color(235, 151, 183);
-    static final Color PALE_PINK = new Color(252, 231, 239);
-    static final Color PALE = new Color(252, 231, 239);
-    static final Color CREAM = new Color(255, 248, 243);
-    static final Color LAVENDER = new Color(237, 229, 248);
+    static final Color DARK = new Color(73, 34, 61);
+    static final Color BERRY = new Color(164, 65, 111);
+    static final Color PINK = new Color(239, 151, 188);
+    static final Color BLUSH = new Color(255, 232, 242);
+    static final Color CREAM = new Color(255, 249, 246);
+    static final Color LAVENDER = new Color(239, 233, 250);
+    static final Color INK = new Color(76, 58, 69);
+    static final Color MUTED = new Color(145, 122, 135);
+    static final Color BORDER = new Color(235, 207, 220);
     static final Color WHITE = Color.WHITE;
-    static final Color INK = new Color(76, 54, 65);
-    static final Color MUTED = new Color(155, 125, 139);
-    static final Color BORDER = new Color(239, 205, 218);
 
-    // Fonts
-    static final Font TITLE_FONT =
-        new Font("Trebuchet MS", Font.BOLD, 38);
+    static final Font TITLE = new Font("Segoe UI", Font.BOLD, 30);
+    static final Font HEADING = new Font("Segoe UI", Font.BOLD, 23);
+    static final Font BODY = new Font("Segoe UI", Font.PLAIN, 14);
+    static final Font BUTTON = new Font("Segoe UI", Font.BOLD, 13);
 
-    static final Font HEADING_FONT =
-        new Font("Trebuchet MS", Font.BOLD, 25);
-
-    static final Font BODY_FONT =
-        new Font("Segoe UI", Font.PLAIN, 14);
-
-    static final Font BUTTON_FONT =
-        new Font("Trebuchet MS", Font.BOLD, 14);
-
-    private Ui() {
-    }
+    private Ui() {}
 
     static JPanel page() {
-
         JPanel p = new JPanel(new BorderLayout(14, 14));
-
         p.setBackground(CREAM);
-
-        p.setBorder(
-            BorderFactory.createEmptyBorder(22, 24, 22, 24)
-        );
-
+        p.setBorder(new EmptyBorder(20, 22, 20, 22));
         return p;
     }
 
-    static JLabel heading(String s) {
-
-        JLabel l = new JLabel(s);
-
-        l.setFont(HEADING_FONT);
+    static JLabel heading(String text) {
+        JLabel l = new JLabel(text);
+        l.setFont(HEADING);
         l.setForeground(DARK);
-
         return l;
     }
 
-    static JButton button(String s) {
+    static JLabel label(String text) {
+        JLabel l = new JLabel(text);
+        l.setFont(BODY);
+        l.setForeground(INK);
+        return l;
+    }
 
-        JButton b = new JButton(s);
+    static JLabel smallLabel(String text) {
+        JLabel l = new JLabel(text);
+        l.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        l.setForeground(MUTED);
+        return l;
+    }
 
+    static JPanel card() {
+        JPanel p = new JPanel();
+        p.setBackground(WHITE);
+        p.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BORDER),
+            new EmptyBorder(16, 18, 16, 18)
+        ));
+        return p;
+    }
+
+    static JButton button(String text) {
+        return styleButton(new JButton(text), true);
+    }
+
+    static JButton secondaryButton(String text) {
+        return styleButton(new JButton(text), false);
+    }
+
+    private static JButton styleButton(JButton b, boolean primary) {
+        Color base = primary ? BERRY : BLUSH;
+
+        b.setFont(BUTTON);
+        b.setForeground(primary ? WHITE : DARK);
+        b.setBackground(base);
         b.setFocusPainted(false);
-        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        b.setBackground(BERRY);
-        b.setForeground(WHITE);
-
-        b.setFont(BUTTON_FONT);
-
-        b.setBorder(
-            BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BERRY, 1),
-                BorderFactory.createEmptyBorder(12, 18, 12, 18)
-            )
-        );
-
         b.setOpaque(true);
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(primary ? BERRY : BORDER),
+            new EmptyBorder(11, 16, 11, 16)
+        ));
 
         b.addMouseListener(new java.awt.event.MouseAdapter() {
-
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
-                b.setBackground(DARK);
+                b.setBackground(primary ? DARK : new Color(250, 216, 230));
             }
 
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
-                b.setBackground(BERRY);
+                b.setBackground(base);
             }
         });
 
         return b;
     }
 
-    static JButton secondaryButton(String s) {
-
-        JButton b = new JButton(s);
-
-        b.setFocusPainted(false);
-        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        b.setBackground(PALE_PINK);
-        b.setForeground(DARK);
-
-        b.setFont(BUTTON_FONT);
-
-        b.setBorder(
-            BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER, 1),
-                BorderFactory.createEmptyBorder(12, 18, 12, 18)
-            )
-        );
-
-        b.setOpaque(true);
-
-        return b;
-    }
-
-    static JLabel label(String s) {
-
-        JLabel l = new JLabel(s);
-
-        l.setForeground(INK);
-        l.setFont(BODY_FONT);
-
-        return l;
-    }
-
-    static JPanel card() {
-
+    static JPanel section() {
         JPanel p = new JPanel();
-
-        p.setBackground(WHITE);
-
-        p.setBorder(
-            BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER, 1),
-                BorderFactory.createEmptyBorder(16, 16, 16, 16)
-            )
-        );
-
+        p.setOpaque(false);
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         return p;
     }
 
-    static JLabel smallLabel(String s) {
+    static void message(Component parent, String message) {
+        JOptionPane.showMessageDialog(
+            parent, message, "Candy Courier",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+    }
 
-        JLabel l = new JLabel(s);
+    static boolean confirm(
+        Component parent,
+        String title,
+        String message,
+        String yesText,
+        String noText
+    ) {
+        Object[] options = { yesText, noText };
 
-        l.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        l.setForeground(MUTED);
-
-        return l;
+        return JOptionPane.showOptionDialog(
+            parent, message, title,
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null, options, options[1]
+        ) == 0;
     }
 }

@@ -1,132 +1,92 @@
-
 package view;
 
+import java.awt.*;
 import java.util.ArrayList;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.JTable;
-import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-
 import controller.LeaderboardController;
 import model.PlayerRecord;
 
-/**
- * Displays the player leaderboard using a graphical table
- *
- * @author Katelyn and Shaira
- * @version 1.0
- */
 public class LeaderboardPanel extends JPanel {
+    private final LeaderboardController controller;
+    private final DefaultTableModel model;
+    private final JLabel status = Ui.smallLabel(" ");
 
-    private LeaderboardController leaderboardController;
-    private DefaultTableModel tableModel;
-    private JTable leaderboardTable;
-    private JLabel statusLabel;
-    private Runnable onBack;
-
-    public LeaderboardPanel(LeaderboardController leaderboardController) {
-        this(leaderboardController, null);
+    public LeaderboardPanel(LeaderboardController controller) {
+        this(controller, null);
     }
 
-    public LeaderboardPanel(
-            LeaderboardController leaderboardController,
-            Runnable onBack) {
+    public LeaderboardPanel(LeaderboardController controller, Runnable onBack) {
+        if (controller == null)
+            throw new IllegalArgumentException("LeaderboardController cannot be null.");
 
-        if (leaderboardController == null) {
-            throw new IllegalArgumentException(
-                "LeaderboardController cannot be null."
-            );
-        }
+        this.controller = controller;
+        setLayout(new BorderLayout(12, 12));
+        setBackground(Ui.CREAM);
+        setBorder(BorderFactory.createEmptyBorder(20, 22, 20, 22));
 
-        this.leaderboardController = leaderboardController;
-        this.onBack = onBack;
+        add(Ui.heading("🏆  Courier Leaderboard"), BorderLayout.NORTH);
 
-        setLayout(new BorderLayout(10, 10));
-
-        JLabel title = new JLabel(
-            "CANDY COURIER LEADERBOARD",
-            SwingConstants.CENTER
-        );
-
-        String[] columns = {
-            "Player Name",
-            "Star Rank",
-            "Days Spent",
-            "Total Steps"
-        };
-
-        tableModel = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
+        String[] columns = {"Player", "Star Rank", "Days", "Steps"};
+        model = new DefaultTableModel(columns, 0) {
+            public boolean isCellEditable(int row, int col) {
                 return false;
             }
         };
 
-        leaderboardTable = new JTable(tableModel);
-        leaderboardTable.setSelectionMode(
-            ListSelectionModel.SINGLE_SELECTION
-        );
-        leaderboardTable.setFillsViewportHeight(true);
+        JTable table = new JTable(model);
+        table.setRowHeight(38);
+        table.setFont(Ui.BODY);
+        table.setForeground(Ui.DARK);
+        table.setSelectionBackground(Ui.BLUSH);
+        table.getTableHeader().setFont(Ui.BUTTON);
+        table.getTableHeader().setBackground(Ui.BLUSH);
+        table.setFillsViewportHeight(true);
 
-        JScrollPane scrollPane = new JScrollPane(leaderboardTable);
-        statusLabel = new JLabel(" ");
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(BorderFactory.createLineBorder(Ui.BORDER));
+        add(scroll, BorderLayout.CENTER);
 
-        JButton refreshButton = new JButton("Refresh");
-        refreshButton.addActionListener(e -> refreshLeaderboard());
+        JButton refresh = Ui.secondaryButton("↻ REFRESH");
+        refresh.addActionListener(e -> refreshLeaderboard());
 
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.add(statusLabel, BorderLayout.WEST);
+        JPanel bottom = new JPanel(new BorderLayout());
+        bottom.setOpaque(false);
+        bottom.add(status, BorderLayout.WEST);
 
-        JPanel buttonPanel = new JPanel(
-            new FlowLayout(FlowLayout.RIGHT)
-        );
-        buttonPanel.add(refreshButton);
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttons.setOpaque(false);
+        buttons.add(refresh);
 
         if (onBack != null) {
-            JButton backButton = new JButton("Back");
-            backButton.addActionListener(e -> onBack.run());
-            buttonPanel.add(backButton);
+            JButton back = Ui.button("← BACK");
+            back.addActionListener(e -> onBack.run());
+            buttons.add(back);
         }
 
-        bottomPanel.add(buttonPanel, BorderLayout.EAST);
-
-        add(title, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
-        add(bottomPanel, BorderLayout.SOUTH);
+        bottom.add(buttons, BorderLayout.EAST);
+        add(bottom, BorderLayout.SOUTH);
 
         refreshLeaderboard();
     }
 
     public void refreshLeaderboard() {
-        leaderboardController.loadLeaderboard();
-        tableModel.setRowCount(0);
+        controller.loadLeaderboard();
+        model.setRowCount(0);
 
-        ArrayList<PlayerRecord> records =
-            leaderboardController.getLeaderboard();
+        ArrayList<PlayerRecord> records = controller.getLeaderboard();
 
-        if (records.isEmpty()) {
-            statusLabel.setText("No leaderboard records available.");
-            return;
+        for (PlayerRecord r : records) {
+            model.addRow(new Object[]{
+                r.getPlayerName(),
+                "★ " + r.getStarRank(),
+                r.getDaysSpent(),
+                r.getTotalSteps()
+            });
         }
 
-        for (PlayerRecord record : records) {
-            Object[] rowData = {
-                record.getPlayerName(),
-                record.getStarRank() + "-star",
-                record.getDaysSpent(),
-                record.getTotalSteps()
-            };
-
-            tableModel.addRow(rowData);
-        }
-
-        statusLabel.setText("Total players: " + records.size());
+        status.setText(records.isEmpty()
+            ? "No leaderboard records yet."
+            : records.size() + " courier record(s)");
     }
 }

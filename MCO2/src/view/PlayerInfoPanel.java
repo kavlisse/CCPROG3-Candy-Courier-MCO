@@ -1,3 +1,4 @@
+
 package view;
 
 import java.awt.*;
@@ -10,38 +11,30 @@ public class PlayerInfoPanel extends JPanel {
     private final JLabel info = new JLabel();
 
     public PlayerInfoPanel() {
-
         setLayout(new BorderLayout());
-        setBackground(Ui.PALE);
+        setBackground(new Color(42, 24, 48));
+        setBorder(BorderFactory.createEmptyBorder(12, 20, 12, 20));
 
-        setBorder(
-            BorderFactory.createEmptyBorder(12, 14, 12, 14)
-        );
+        info.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        info.setForeground(Color.WHITE);
 
-        info.setFont(
-            new Font("SansSerif", Font.BOLD, 14)
-        );
-
-        info.setForeground(Ui.DARK);
-
-        add(info);
+        add(info, BorderLayout.CENTER);
     }
 
     public void refresh(Player p, int day) {
-
         if (p == null) {
-            info.setText("No active player");
-        } else {
-
-            info.setText(
-                "  " + p.getName() +
-                "   ★ " + p.getStarRank() +
-                "   XP " + p.getTotalXP() +
-                "   Next rank: " +
-                p.getXPNeededForNextRank() +
-                " XP   Day " + day +
-                "   Steps " + p.getTotalSteps()
-            );
+            info.setText("CANDY COURIER");
+            return;
         }
+
+        info.setText(
+            "  " + p.getName() +
+            "     |     RANK " + p.getStarRank() +
+            "     |     " + p.getTotalXP() + " XP" +
+            "     |     " + p.getInventory().getCandyCount() +
+            "/" + p.getInventory().getCapacity() +
+            "     |     DAY " + day +
+            "     |     STEPS " + p.getTotalSteps()
+        );
     }
 }

@@ -4,197 +4,220 @@ package view;
 import java.awt.*;
 import javax.swing.*;
 
-import model.*;
 import controller.GameController;
+import model.*;
 
 public class WorldPanel extends JPanel {
 
     private final GamePanel parent;
     private final GameController controller;
-
     private final JPanel grid = new JPanel();
 
-    public WorldPanel(
-        GamePanel parent,
-        GameController controller
-    ) {
+    private static final Color GRASS = new Color(91, 155, 83);
+    private static final Color FACTORY = new Color(238, 180, 202);
+    private static final Color HOUSE = new Color(190, 178, 225);
+    private static final Color HOME = new Color(239, 205, 145);
+    private static final Color PLAYER = new Color(75, 45, 100);
+    private static final Color BACKGROUND = new Color(28, 35, 31);
 
+    public WorldPanel(GamePanel parent, GameController controller) {
         this.parent = parent;
         this.controller = controller;
 
-        setLayout(new BorderLayout());
-        setBackground(Ui.CREAM);
+        setLayout(new GridBagLayout());
+        setBackground(BACKGROUND);
 
-        grid.setBackground(Ui.CREAM);
-        add(grid, BorderLayout.CENTER);
+        grid.setBackground(BACKGROUND);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.insets = new Insets(8, 8, 8, 8);
+
+        add(grid, gbc);
+    }
+
+    @Override
+    public void doLayout() {
+        super.doLayout();
+        grid.revalidate();
     }
 
     public void refresh() {
-
         grid.removeAll();
 
         Player p = controller.getGame().getPlayer();
         World w = controller.getGame().getWorld();
 
         if (p == null || w == null) {
+            grid.revalidate();
+            grid.repaint();
             return;
         }
 
         int n = w.getGridSize();
 
-        grid.setLayout(
-            new GridLayout(n, n, 4, 4)
-        );
+        grid.setLayout(new GridLayout(n, n, 3, 3));
 
         for (int r = 0; r < n; r++) {
+            for (int col = 0; col < n; col++) {
 
-            for (int c = 0; c < n; c++) {
-
-                final int rr = r;
-                final int cc = c;
-
-                Building b = w.getBuildingAt(r, c);
+                Building building = w.getBuildingAt(r, col);
 
                 boolean isPlayer =
-                    p.getRow() == r &&
-                    p.getColumn() == c;
+                    p.getRow() == r && p.getColumn() == col;
 
-                String symbol = "";
+                Color tileColor = GRASS;
+                String type = "empty";
                 String name = "";
 
-                Color background = Ui.WHITE;
-                Color foreground = Ui.INK;
-                Color borderColor = Ui.BORDER;
+                if (building instanceof Factory) {
+                    tileColor = FACTORY;
+                    type = "factory";
+                    name = building.getName();
 
-                // Factory tile
-                if (b instanceof Factory) {
+                } else if (building instanceof House) {
+                    tileColor = HOUSE;
+                    type = "house";
+                    name = building.getName();
 
-                    symbol = "F";
-                    name = b.getName();
-
-                    background = new Color(255, 225, 236);
-                    foreground = Ui.DARK;
-
+                } else if (building instanceof PlayerHome) {
+                    tileColor = HOME;
+                    type = "home";
+                    name = building.getName();
                 }
 
-                // House tile
-                else if (b instanceof House) {
-
-                    symbol = "H";
-                    name = b.getName();
-
-                    background = Ui.LAVENDER;
-                    foreground = new Color(104, 75, 139);
-
-                }
-
-                // Player home tile
-                else if (b instanceof PlayerHome) {
-
-                    symbol = "⌂";
-                    name = b.getName();
-
-                    background = new Color(255, 239, 218);
-                    foreground = new Color(151, 104, 42);
-
-                }
-
-                // Player tile
                 if (isPlayer) {
-
-                    symbol = "●";
-                    name = "YOU";
-
-                    background = Ui.BERRY;
-                    foreground = Ui.WHITE;
-                    borderColor = Ui.DARK;
+                    tileColor = PLAYER;
+                    type = "player";
+                    name = p.getName();
                 }
+
+                JButton tile = new JButton();
+                tile.setLayout(new BorderLayout(2, 2));
+                tile.setBackground(tileColor);
+                tile.setOpaque(true);
+                tile.setFocusPainted(false);
+                tile.setMargin(new Insets(2, 2, 2, 2));
+
+                tile.setBorder(BorderFactory.createLineBorder(
+                    new Color(225, 225, 225), 2
+                ));
 
                 JLabel icon = new JLabel(
-                    symbol.isEmpty() ? " " : symbol,
-                    SwingConstants.CENTER
+                    new TileIcon(type), SwingConstants.CENTER
                 );
 
-                icon.setFont(
-                    new Font("Segoe UI Symbol", Font.BOLD, 27)
+                JLabel label = new JLabel(name, SwingConstants.CENTER);
+                label.setFont(new Font("Segoe UI", Font.BOLD, 11));
+                label.setForeground(
+                    isPlayer ? Color.WHITE : new Color(45, 38, 48)
                 );
 
-                icon.setForeground(foreground);
+                tile.add(icon, BorderLayout.CENTER);
+                tile.add(label, BorderLayout.SOUTH);
 
-                JLabel buildingName = new JLabel(
-                    name,
-                    SwingConstants.CENTER
-                );
+                final int row = r;
+                final int column = col;
 
-                buildingName.setFont(
-                    new Font("Trebuchet MS", Font.BOLD, 10)
-                );
-
-                buildingName.setForeground(foreground);
-
-                JPanel tileContent = new JPanel(
-                    new BorderLayout(2, 2)
-                );
-
-                tileContent.setOpaque(false);
-                tileContent.add(icon, BorderLayout.CENTER);
-                tileContent.add(buildingName, BorderLayout.SOUTH);
-
-                JButton cell = new JButton();
-
-                cell.setLayout(new BorderLayout());
-                cell.add(tileContent, BorderLayout.CENTER);
-
-                cell.setBackground(background);
-                cell.setOpaque(true);
-                cell.setFocusPainted(false);
-                cell.setContentAreaFilled(true);
-
-                cell.setBorder(
-                    BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                            borderColor,
-                            isPlayer ? 3 : 1
-                        ),
-                        BorderFactory.createEmptyBorder(4, 4, 4, 4)
-                    )
-                );
-
-                cell.setCursor(
-                    new Cursor(Cursor.HAND_CURSOR)
-                );
-
-                String coordinates =
-                    "Row " + (r + 1) +
-                    ", Column " + (c + 1);
-
-                cell.setToolTipText(
-                    coordinates +
-                    (name.isEmpty() ? " — Empty tile" : " — " + name)
-                );
-
-                cell.addActionListener(e -> {
-
-                    if (
-                        rr == p.getRow() &&
-                        cc == p.getColumn()
-                    ) {
-
+                tile.addActionListener(e -> {
+                    if (p.getRow() == row && p.getColumn() == column) {
                         parent.interactCurrentLocation();
-
-                    } else {
-
-                        // Movement is handled by the arrow keys
-                        // or WASD controls.
-                        Toolkit.getDefaultToolkit().beep();
                     }
                 });
 
-                grid.add(cell);
+                grid.add(tile);
             }
         }
 
         grid.revalidate();
         grid.repaint();
+    }
+
+    private static class TileIcon implements Icon {
+
+        private final String type;
+
+        TileIcon(String type) {
+            this.type = type;
+        }
+
+        @Override
+        public int getIconWidth() {
+            return 42;
+        }
+
+        @Override
+        public int getIconHeight() {
+            return 42;
+        }
+
+        @Override
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            switch (type) {
+                case "factory":
+                    g2.setColor(new Color(100, 55, 75));
+                    g2.fillRect(x + 7, y + 16, 28, 21);
+                    g2.fillPolygon(
+                        new int[]{
+                            x + 7, x + 16, x + 16,
+                            x + 25, x + 25, x + 35
+                        },
+                        new int[]{
+                            y + 16, y + 8, y + 16,
+                            y + 8, y + 16, y + 16
+                        },
+                        6
+                    );
+                    g2.setColor(Color.WHITE);
+                    g2.fillRect(x + 12, y + 24, 5, 7);
+                    g2.fillRect(x + 24, y + 24, 5, 7);
+                    break;
+
+                case "house":
+                case "home":
+                    g2.setColor(type.equals("home")
+                        ? new Color(115, 76, 35)
+                        : new Color(85, 65, 125));
+
+                    g2.fillPolygon(
+                        new int[]{x + 5, x + 21, x + 37},
+                        new int[]{y + 20, y + 5, y + 20},
+                        3
+                    );
+                    g2.fillRect(x + 10, y + 19, 22, 19);
+
+                    g2.setColor(Color.WHITE);
+                    g2.fillRect(x + 18, y + 25, 7, 13);
+                    break;
+
+                case "player":
+                    g2.setColor(new Color(255, 220, 165));
+                    g2.fillOval(x + 13, y + 3, 16, 16);
+
+                    g2.setColor(new Color(245, 190, 75));
+                    g2.fillRoundRect(x + 9, y + 19, 24, 20, 8, 8);
+
+                    g2.setColor(Color.WHITE);
+                    g2.fillRect(x + 14, y + 25, 14, 5);
+                    break;
+
+                default:
+                    g2.setColor(new Color(115, 170, 105));
+                    g2.fillOval(x + 15, y + 15, 12, 12);
+            }
+
+            g2.dispose();
+        }
     }
 }

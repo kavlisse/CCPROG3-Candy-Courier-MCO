@@ -7,66 +7,25 @@ import javax.swing.*;
 public class SidebarPanel extends JPanel {
 
     public SidebarPanel(GamePanel game) {
-
-        setLayout(new GridLayout(0, 1, 8, 8));
+        setLayout(new GridLayout(0, 1, 7, 7));
         setBackground(Ui.CREAM);
+        setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
-        setBorder(
-            BorderFactory.createEmptyBorder(8, 8, 8, 8)
-        );
-
-        addNav("WORLD", () -> game.showWorld(), true);
-
-        addNav(
-            "INVENTORY",
-            () -> game.showInventory(),
-            false
-        );
-
-        addNav(
-            "ORDERS",
-            () -> game.showOrders(),
-            false
-        );
-
-        addNav(
-            "CANDY SEARCH",
-            () -> game.showSearch(),
-            false
-        );
-
-        addNav(
-            "PLAYER PROFILE",
-            () -> game.showPlayerInfo(),
-            false
-        );
-
-        addNav(
-            "MAIN MENU",
-            () -> game.returnToMenu(),
-            false
-        );
+        addNav("WORLD", game::showWorld, true);
+        addNav("INVENTORY", game::showInventory, false);
+        addNav("ORDERS", game::showOrders, false);
+        addNav("FACTORIES", game::showSearch, false);
+        addNav("PROFILE", game::showProfile, false);
+        addNav("MAIN MENU", game::returnToMenu, false);
     }
 
-    private void addNav(
-        String text,
-        Runnable action,
-        boolean primary
-    ) {
+    private void addNav(String label, Runnable action, boolean primary) {
+        JButton button = primary
+            ? Ui.button(label)
+            : Ui.secondaryButton(label);
 
-        JButton b = primary
-            ? Ui.button(text)
-            : Ui.secondaryButton(text);
-
-        b.setFont(
-            new Font("Trebuchet MS", Font.BOLD, 13)
-        );
-
-        b.setPreferredSize(new Dimension(145, 65));
-        b.setFocusPainted(false);
-
-        b.addActionListener(e -> action.run());
-
-        add(b);
+        button.setPreferredSize(new Dimension(145, 60));
+        button.addActionListener(e -> action.run());
+        add(button);
     }
 }

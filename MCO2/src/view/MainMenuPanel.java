@@ -1,98 +1,73 @@
-
 package view;
 
 import java.awt.*;
 import javax.swing.*;
 
 public class MainMenuPanel extends JPanel {
-
     public MainMenuPanel(MainFrame frame) {
-
         setLayout(new GridBagLayout());
         setBackground(Ui.CREAM);
 
-        JPanel content = new JPanel();
-        content.setOpaque(false);
+        JPanel card = Ui.card();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setPreferredSize(new Dimension(520, 470));
 
-        content.setLayout(
-            new BoxLayout(content, BoxLayout.Y_AXIS)
-        );
+        JLabel emblem = new JLabel("🍬  ✦  🍓  ✦  🍬");
+        emblem.setAlignmentX(Component.CENTER_ALIGNMENT);
+        emblem.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 30));
 
-        // Decorative title
-        JLabel decoration = new JLabel("SWEET ADVENTURES AWAIT");
-        decoration.setAlignmentX(Component.CENTER_ALIGNMENT);
-        decoration.setFont(
-            new Font("Trebuchet MS", Font.BOLD, 13)
-        );
-        decoration.setForeground(Ui.BERRY);
+        JLabel eyebrow = new JLabel("A LITTLE WORLD OF SWEET ADVENTURES");
+        eyebrow.setAlignmentX(Component.CENTER_ALIGNMENT);
+        eyebrow.setForeground(Ui.BERRY);
+        eyebrow.setFont(new Font("Segoe UI", Font.BOLD, 11));
 
-        // Game title
         JLabel title = new JLabel("CANDY COURIER");
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        title.setFont(
-            new Font("Trebuchet MS", Font.BOLD, 52)
-        );
         title.setForeground(Ui.DARK);
+        title.setFont(Ui.TITLE);
 
-        // Subtitle
-        JLabel subtitle = new JLabel(
-            "Collect sweets. Complete orders. Grow your little world."
-        );
+        JLabel subtitle = new JLabel("Collect sweets. Complete orders. Explore.");
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        subtitle.setFont(
-            new Font("Segoe UI", Font.PLAIN, 15)
-        );
-        subtitle.setForeground(Ui.INK);
+        subtitle.setForeground(Ui.MUTED);
+        subtitle.setFont(Ui.BODY);
 
-        // Menu buttons
-        JButton start = Ui.button("START NEW GAME");
-        JButton scores = Ui.secondaryButton("LEADERBOARD");
-        JButton exit = Ui.secondaryButton("EXIT GAME");
-
-        Dimension buttonSize = new Dimension(290, 52);
+        JButton start = Ui.button("▶   START ADVENTURE");
+        JButton scores = Ui.secondaryButton("🏆   LEADERBOARD");
+        JButton exit = Ui.secondaryButton("✕   EXIT GAME");
 
         for (JButton b : new JButton[]{start, scores, exit}) {
-
             b.setAlignmentX(Component.CENTER_ALIGNMENT);
-            b.setMaximumSize(buttonSize);
-            b.setPreferredSize(buttonSize);
-            b.setMinimumSize(buttonSize);
+            b.setMaximumSize(new Dimension(310, 48));
+            b.setPreferredSize(new Dimension(310, 48));
         }
 
-        content.add(decoration);
-        content.add(Box.createVerticalStrut(12));
-        content.add(title);
-        content.add(Box.createVerticalStrut(10));
-        content.add(subtitle);
-        content.add(Box.createVerticalStrut(42));
+        card.add(Box.createVerticalGlue());
+        card.add(emblem);
+        card.add(Box.createVerticalStrut(18));
+        card.add(eyebrow);
+        card.add(Box.createVerticalStrut(8));
+        card.add(title);
+        card.add(Box.createVerticalStrut(8));
+        card.add(subtitle);
+        card.add(Box.createVerticalStrut(35));
+        card.add(start);
+        card.add(Box.createVerticalStrut(12));
+        card.add(scores);
+        card.add(Box.createVerticalStrut(12));
+        card.add(exit);
+        card.add(Box.createVerticalGlue());
 
-        content.add(start);
-        content.add(Box.createVerticalStrut(14));
-        content.add(scores);
-        content.add(Box.createVerticalStrut(14));
-        content.add(exit);
-
-        // Menu actions
         start.addActionListener(e -> frame.showSetup());
-
-        scores.addActionListener(
-            e -> frame.showLeaderboard()
-        );
+        scores.addActionListener(e -> frame.showLeaderboard());
 
         exit.addActionListener(e -> {
-
-            int choice = JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to leave Candy Courier?",
-                "Exit Game",
-                JOptionPane.YES_NO_OPTION
-            );
-
-            if (choice == JOptionPane.YES_OPTION) {
+            if (Ui.confirm(this, "Exit Candy Courier?",
+                    "Are you sure you want to leave the game?",
+                    "Exit", "Stay")) {
                 System.exit(0);
             }
         });
 
-        add(content);
+        add(card);
     }
 }

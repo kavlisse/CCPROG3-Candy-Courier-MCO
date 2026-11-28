@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import controller.*;
+import controller.GameController;
 import model.*;
 
 public class GamePanel extends JPanel {
@@ -16,190 +16,133 @@ public class GamePanel extends JPanel {
     private final CardLayout contentCards = new CardLayout();
     private final JPanel content = new JPanel(contentCards);
 
-    private final PlayerInfoPanel playerInfo =
-        new PlayerInfoPanel();
-
-    private final PlayerInfoScreen playerInfoScreen;
-
+    private final PlayerInfoPanel playerInfo = new PlayerInfoPanel();
     private final WorldPanel worldPanel;
+
     private final InventoryPanel inventoryPanel;
     private final OrdersPanel ordersPanel;
     private final CandySearchPanel searchPanel;
+    private final PlayerInfoScreen profilePanel;
 
-    private final JLabel status =
-        new JLabel("Welcome, courier!");
+    private final JLabel status = new JLabel("Explore the world!");
 
-    public GamePanel(
-        MainFrame frame,
-        GameController controller
-    ) {
-
+    public GamePanel(MainFrame frame, GameController controller) {
         this.frame = frame;
         this.controller = controller;
 
-        setLayout(new BorderLayout(10, 10));
-        setBackground(Ui.CREAM);
-
-        setBorder(
-            BorderFactory.createEmptyBorder(12, 12, 12, 12)
-        );
+        setLayout(new BorderLayout(0, 0));
+        setBackground(new Color(28, 35, 31));
 
         worldPanel = new WorldPanel(this, controller);
         inventoryPanel = new InventoryPanel(controller);
         ordersPanel = new OrdersPanel(controller);
         searchPanel = new CandySearchPanel(controller);
+        profilePanel = new PlayerInfoScreen(controller);
 
-        playerInfoScreen = new PlayerInfoScreen(controller);
+        content.setBackground(new Color(28, 35, 31));
 
         content.add(worldPanel, "world");
         content.add(inventoryPanel, "inventory");
         content.add(ordersPanel, "orders");
         content.add(searchPanel, "search");
-        content.add(playerInfoScreen, "player");
+        content.add(profilePanel, "profile");
 
         add(playerInfo, BorderLayout.NORTH);
-        add(new SidebarPanel(this), BorderLayout.WEST);
+        add(createNavigation(), BorderLayout.WEST);
         add(content, BorderLayout.CENTER);
+        add(createBottomBar(), BorderLayout.SOUTH);
 
-        // Movement controls
-        JPanel bottom = new JPanel(new BorderLayout(20, 10));
-        bottom.setBackground(Ui.CREAM);
-        bottom.setBorder(
-            BorderFactory.createEmptyBorder(8, 0, 0, 0)
-        );
-
-        JPanel movementArea = new JPanel(new BorderLayout(5, 5));
-        movementArea.setBackground(Ui.CREAM);
-
-        JLabel movementTitle = Ui.label("MOVEMENT");
-        movementTitle.setFont(
-            new Font("Trebuchet MS", Font.BOLD, 12)
-        );
-        movementTitle.setForeground(Ui.DARK);
-
-        movementArea.add(movementTitle, BorderLayout.NORTH);
-
-        JPanel directions = new JPanel(
-            new GridLayout(2, 3, 6, 6)
-        );
-        directions.setBackground(Ui.CREAM);
-
-        directions.add(new JLabel());
-
-        moveButton(directions, "UP", "up");
-
-        directions.add(new JLabel());
-
-        moveButton(directions, "LEFT", "left");
-        moveButton(directions, "DOWN", "down");
-        moveButton(directions, "RIGHT", "right");
-
-        movementArea.add(directions, BorderLayout.CENTER);
-
-        bottom.add(movementArea, BorderLayout.WEST);
-
-        // Interaction area
-        JPanel interactionArea = new JPanel(new BorderLayout());
-        interactionArea.setBackground(Ui.CREAM);
-        interactionArea.setBorder(
-            BorderFactory.createEmptyBorder(20, 35, 0, 0)
-        );
-
-        JButton interact = Ui.button("INTERACT WITH LOCATION");
-
-        interact.setPreferredSize(
-            new Dimension(270, 65)
-        );
-
-        interact.addActionListener(
-            e -> interactCurrentLocation()
-        );
-
-        interactionArea.add(interact, BorderLayout.CENTER);
-
-        bottom.add(interactionArea, BorderLayout.CENTER);
-
-        // Status message
-        status.setForeground(Ui.DARK);
-        status.setFont(
-            new Font("Trebuchet MS", Font.BOLD, 13)
-        );
-
-        bottom.add(status, BorderLayout.SOUTH);
-
-        add(bottom, BorderLayout.SOUTH);
-
-        // Enable keyboard movement
-        installMovementKeys();
+        installKeys();
     }
 
-    private void moveButton(
-        JPanel p,
-        String label,
-        String dir
-    ) {
+    private JPanel createNavigation() {
+        JPanel nav = new JPanel(new GridLayout(6, 1, 5, 5));
+        nav.setBackground(new Color(42, 24, 48));
+        nav.setBorder(BorderFactory.createEmptyBorder(10, 8, 10, 8));
 
-        JButton b = Ui.button(label);
+        addNav(nav, "WORLD", () -> showWorld());
+        addNav(nav, "INVENTORY", () -> showInventory());
+        addNav(nav, "ORDERS", () -> showOrders());
+        addNav(nav, "FIND FACTORIES", () -> showSearch());
+        addNav(nav, "PROFILE", () -> showProfile());
+        addNav(nav, "MAIN MENU", () -> returnToMenu());
 
-        b.setPreferredSize(new Dimension(75, 48));
-        b.setFont(
-            new Font("Trebuchet MS", Font.BOLD, 12)
-        );
-
-        b.addActionListener(e -> move(dir));
-
-        p.add(b);
+        return nav;
     }
 
-    private void move(String direction) {
+    private void addNav(JPanel nav, String text, Runnable action) {
+        JButton button = new JButton(text);
 
-        if (controller.movePlayer(direction)) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        button.setForeground(Color.WHITE);
+        button.setBackground(new Color(104, 65, 111));
+        button.setFocusPainted(false);
+        button.setOpaque(true);
+        button.setBorder(BorderFactory.createEmptyBorder(15, 5, 15, 5));
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-            status.setText("Moved " + direction + ".");
-            refreshAll();
-
-        } else {
-
-            status.setText("You cannot move that way.");
-        }
+        button.addActionListener(e -> action.run());
+        nav.add(button);
     }
 
-    private void installMovementKeys() {
+    private JPanel createBottomBar() {
+        JPanel bottom = new JPanel(new BorderLayout());
+        bottom.setBackground(new Color(42, 24, 48));
+        bottom.setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
 
-        InputMap input = getInputMap(
-            JComponent.WHEN_IN_FOCUSED_WINDOW
+        status.setForeground(Color.WHITE);
+        status.setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+        JLabel controls = new JLabel(
+            "WASD / ARROWS  •  SPACE / ENTER TO INTERACT"
         );
 
+        controls.setForeground(new Color(220, 200, 225));
+        controls.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+
+        bottom.add(status, BorderLayout.WEST);
+        bottom.add(controls, BorderLayout.EAST);
+
+        return bottom;
+    }
+
+    private void installKeys() {
+        InputMap input = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap actions = getActionMap();
 
-        // Arrow keys
-        bindKey(input, actions, KeyEvent.VK_UP, "moveUp", "up");
-        bindKey(input, actions, KeyEvent.VK_DOWN, "moveDown", "down");
-        bindKey(input, actions, KeyEvent.VK_LEFT, "moveLeft", "left");
-        bindKey(input, actions, KeyEvent.VK_RIGHT, "moveRight", "right");
+        bind(input, actions, KeyEvent.VK_UP, "up", "up");
+        bind(input, actions, KeyEvent.VK_W, "w", "up");
 
-        // WASD keys
-        bindKey(input, actions, KeyEvent.VK_W, "moveW", "up");
-        bindKey(input, actions, KeyEvent.VK_S, "moveS", "down");
-        bindKey(input, actions, KeyEvent.VK_A, "moveA", "left");
-        bindKey(input, actions, KeyEvent.VK_D, "moveD", "right");
+        bind(input, actions, KeyEvent.VK_DOWN, "down", "down");
+        bind(input, actions, KeyEvent.VK_S, "s", "down");
+
+        bind(input, actions, KeyEvent.VK_LEFT, "left", "left");
+        bind(input, actions, KeyEvent.VK_A, "a", "left");
+
+        bind(input, actions, KeyEvent.VK_RIGHT, "right", "right");
+        bind(input, actions, KeyEvent.VK_D, "d", "right");
+
+        input.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "interact");
+        input.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "interact");
+
+        actions.put("interact", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                interactCurrentLocation();
+            }
+        });
     }
 
-    private void bindKey(
+    private void bind(
         InputMap input,
         ActionMap actions,
         int key,
-        String actionName,
+        String name,
         String direction
     ) {
+        input.put(KeyStroke.getKeyStroke(key, 0), name);
 
-        input.put(
-            KeyStroke.getKeyStroke(key, 0),
-            actionName
-        );
-
-        actions.put(actionName, new AbstractAction() {
-
+        actions.put(name, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 move(direction);
@@ -207,21 +150,43 @@ public class GamePanel extends JPanel {
         });
     }
 
-    public void refreshAll() {
+    private void move(String direction) {
+        if (controller.movePlayer(direction)) {
+            status.setText("Moved " + direction.toUpperCase());
+            refreshAll();
+        } else {
+            status.setText("You cannot move that way.");
+        }
+    }
 
+    private void addMovementButton(
+        JPanel panel,
+        String text,
+        String direction
+    ) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        button.setFocusable(false);
+        button.setBackground(new Color(255, 232, 242));
+        button.setForeground(new Color(73, 34, 61));
+        button.setBorder(BorderFactory.createLineBorder(
+            new Color(235, 207, 220)
+        ));
+
+        button.addActionListener(e -> move(direction));
+        panel.add(button);
+    }
+
+    public void refreshAll() {
         Player p = controller.getGame().getPlayer();
 
-        playerInfo.refresh(
-            p,
-            controller.getGame().getDayNum()
-        );
+        playerInfo.refresh(p, controller.getGame().getDayNum());
 
         worldPanel.refresh();
         inventoryPanel.refresh();
         ordersPanel.refresh();
         searchPanel.refresh();
-
-        playerInfoScreen.refresh();
+        profilePanel.refresh();
     }
 
     public void showWorld() {
@@ -244,13 +209,12 @@ public class GamePanel extends JPanel {
         contentCards.show(content, "search");
     }
 
-    public void showPlayerInfo() {
-        playerInfoScreen.refresh();
-        contentCards.show(content, "player");
+    public void showProfile() {
+        profilePanel.refresh();
+        contentCards.show(content, "profile");
     }
 
     public void returnToMenu() {
-
         int choice = JOptionPane.showConfirmDialog(
             this,
             "Return to the main menu? Your current run will end and be recorded.",
@@ -264,31 +228,17 @@ public class GamePanel extends JPanel {
     }
 
     public void interactCurrentLocation() {
-
         Building b = controller.getCurrentBuilding();
 
         if (b instanceof Factory) {
-
-            FactoryPanel.showDialog(
-                frame,
-                controller,
-                (Factory) b
-            );
-
+            FactoryPanel.showDialog(frame, controller, (Factory) b);
             refreshAll();
 
         } else if (b instanceof House) {
-
-            HousePanel.showDialog(
-                frame,
-                controller,
-                (House) b
-            );
-
+            HousePanel.showDialog(frame, controller, (House) b);
             refreshAll();
 
         } else if (b instanceof PlayerHome) {
-
             int choice = JOptionPane.showConfirmDialog(
                 this,
                 "Rest at home and advance to the next day?",
@@ -298,17 +248,12 @@ public class GamePanel extends JPanel {
 
             if (choice == JOptionPane.YES_OPTION) {
                 controller.handlePlayerHome(true);
-                status.setText(
-                    "You rested. A new day begins!"
-                );
+                status.setText("A new day begins!");
                 refreshAll();
             }
 
         } else {
-
-            frame.showMessage(
-                "There is nothing to interact with here."
-            );
+            status.setText("Nothing to interact with here.");
         }
     }
 }

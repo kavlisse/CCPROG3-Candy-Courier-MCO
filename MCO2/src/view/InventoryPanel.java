@@ -1,269 +1,110 @@
-
 package view;
 
 import java.awt.*;
 import java.util.ArrayList;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
 import controller.GameController;
 import model.Candy;
 
-/**
- * Displays the player's candy inventory and allows
- * the player to discard one or multiple candies.
- *
- * @author Katelyn and Shaira
- * @version 1.0
- */
 public class InventoryPanel extends JPanel {
-
-    private static final Color PINK = new Color(174, 76, 125);
-    private static final Color LIGHT_PINK = new Color(250, 231, 239);
-    private static final Color CREAM = new Color(255, 248, 244);
-    private static final Color DARK = new Color(105, 42, 75);
-    private static final Color WHITE = Color.WHITE;
-
     private final GameController c;
-
-    private final DefaultListModel<String> model =
-        new DefaultListModel<>();
-
-    private final JList<String> list =
-        new JList<>(model);
-
-    private final JLabel inventoryStatus =
-        new JLabel("0 / 0 CANDIES");
-
-    private final JLabel selectionStatus =
-        new JLabel("Select candies to discard.");
+    private final DefaultListModel<String> model = new DefaultListModel<>();
+    private final JList<String> list = new JList<>(model);
+    private final JLabel countLabel = Ui.heading("🎒  0 / 0");
+    private final JLabel selectionStatus = Ui.smallLabel("Select candies to discard.");
 
     public InventoryPanel(GameController c) {
-
         this.c = c;
+        setLayout(new BorderLayout(14, 14));
+        setBackground(Ui.CREAM);
+        setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
 
-        setLayout(new BorderLayout(15, 15));
-        setBackground(CREAM);
-
-        setBorder(
-            BorderFactory.createEmptyBorder(20, 20, 20, 20)
-        );
-
-        // Heading and inventory capacity
-        JPanel top = new JPanel(new BorderLayout(8, 10));
-        top.setBackground(CREAM);
-
-        JLabel title = new JLabel("Candy Inventory");
-        title.setFont(
-            new Font("Trebuchet MS", Font.BOLD, 28)
-        );
-        title.setForeground(DARK);
-
-        JLabel subtitle = new JLabel(
-            "Manage the candies you have collected."
-        );
-        subtitle.setFont(
-            new Font("Trebuchet MS", Font.PLAIN, 14)
-        );
-        subtitle.setForeground(PINK);
-
-        JPanel heading = new JPanel();
-        heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
-        heading.setBackground(CREAM);
-
-        heading.add(title);
-        heading.add(Box.createVerticalStrut(5));
-        heading.add(subtitle);
-
-        inventoryStatus.setFont(
-            new Font("Trebuchet MS", Font.BOLD, 18)
-        );
-        inventoryStatus.setForeground(DARK);
-        inventoryStatus.setOpaque(true);
-        inventoryStatus.setBackground(LIGHT_PINK);
-        inventoryStatus.setBorder(
-            new EmptyBorder(12, 15, 12, 15)
-        );
-
-        top.add(heading, BorderLayout.NORTH);
-        top.add(inventoryStatus, BorderLayout.SOUTH);
-
+        JPanel top = new JPanel(new BorderLayout());
+        top.setOpaque(false);
+        top.add(Ui.heading("Your Inventory"), BorderLayout.WEST);
+        top.add(countLabel, BorderLayout.EAST);
         add(top, BorderLayout.NORTH);
 
-        // Candy list
-        list.setSelectionMode(
-            ListSelectionModel.MULTIPLE_INTERVAL_SELECTION
-        );
+        list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        list.setFont(Ui.BODY);
+        list.setFixedCellHeight(52);
+        list.setBackground(Ui.WHITE);
+        list.setForeground(Ui.DARK);
+        list.setBorder(new EmptyBorder(8, 8, 8, 8));
 
-        list.setFont(
-            new Font("Trebuchet MS", Font.PLAIN, 15)
-        );
-
-        list.setBackground(WHITE);
-        list.setForeground(DARK);
-        list.setFixedCellHeight(58);
-
-        list.setBorder(
-            new EmptyBorder(8, 8, 8, 8)
-        );
-
-        list.setCellRenderer((list, value, index, selected, focus) -> {
-
+        list.setCellRenderer((items, value, index, selected, focus) -> {
             JLabel item = new JLabel(value);
-
             item.setOpaque(true);
-            item.setBorder(
-                new EmptyBorder(10, 15, 10, 15)
-            );
-
-            item.setFont(
-                new Font("Trebuchet MS", Font.BOLD, 15)
-            );
-
-            if (selected) {
-                item.setBackground(PINK);
-                item.setForeground(WHITE);
-            } else {
-                item.setBackground(
-                    index % 2 == 0 ? WHITE : LIGHT_PINK
-                );
-                item.setForeground(DARK);
-            }
-
+            item.setBorder(new EmptyBorder(10, 14, 10, 14));
+            item.setFont(Ui.BODY);
+            item.setBackground(selected ? Ui.BERRY
+                : index % 2 == 0 ? Ui.WHITE : Ui.BLUSH);
+            item.setForeground(selected ? Ui.WHITE : Ui.DARK);
             return item;
         });
 
         list.addListSelectionListener(e -> {
-
             if (!e.getValueIsAdjusting()) {
-
                 selectionStatus.setText(
-                    list.getSelectedIndices().length +
-                    " candy item(s) selected."
-                );
+                    list.getSelectedIndices().length + " item(s) selected");
             }
         });
 
         JScrollPane scroll = new JScrollPane(list);
-        scroll.setBorder(
-            BorderFactory.createLineBorder(
-                new Color(238, 190, 210)
-            )
-        );
-
+        scroll.setBorder(BorderFactory.createLineBorder(Ui.BORDER));
         add(scroll, BorderLayout.CENTER);
 
-        // Bottom controls
-        JPanel bottom = new JPanel(new BorderLayout(10, 10));
-        bottom.setBackground(CREAM);
-
-        selectionStatus.setFont(
-            new Font("Trebuchet MS", Font.PLAIN, 14)
-        );
-        selectionStatus.setForeground(DARK);
-
-        JButton discard = new JButton("DISCARD SELECTED CANDIES");
-        discard.setFont(
-            new Font("Trebuchet MS", Font.BOLD, 14)
-        );
-        discard.setForeground(WHITE);
-        discard.setBackground(PINK);
-        discard.setFocusPainted(false);
-        discard.setBorder(
-            new EmptyBorder(14, 20, 14, 20)
-        );
-
+        JButton discard = Ui.button("🗑  DISCARD SELECTED");
         discard.addActionListener(e -> discardSelected());
 
+        JPanel bottom = new JPanel(new BorderLayout(8, 8));
+        bottom.setOpaque(false);
         bottom.add(selectionStatus, BorderLayout.NORTH);
-        bottom.add(discard, BorderLayout.SOUTH);
-
+        bottom.add(discard, BorderLayout.EAST);
         add(bottom, BorderLayout.SOUTH);
 
         refresh();
     }
 
     private void discardSelected() {
-
         int[] selected = list.getSelectedIndices();
 
         if (selected.length == 0) {
-
-            JOptionPane.showMessageDialog(
-                this,
-                "Please select at least one candy to discard."
-            );
-
+            Ui.message(this, "Select at least one candy to discard.");
             return;
         }
 
-        int choice = JOptionPane.showConfirmDialog(
-            this,
-            "Are you sure you want to discard " +
-            selected.length + " candy item(s)?",
-            "Discard Candies",
-            JOptionPane.YES_NO_OPTION
-        );
-
-        if (choice != JOptionPane.YES_OPTION) {
-            return;
-        }
+        if (!Ui.confirm(this, "Discard candies?",
+                "Discard " + selected.length + " selected item(s)?",
+                "Discard", "Cancel")) return;
 
         ArrayList<Integer> slots = new ArrayList<>();
+        for (int index : selected) slots.add(index + 1);
 
-        for (int index : selected) {
-            slots.add(index + 1);
-        }
-
-        int removed =
-            c.getInventoryController()
-                .discardMultipleCandies(slots);
-
-        JOptionPane.showMessageDialog(
-            this,
-            removed + " candy item(s) discarded."
-        );
-
+        int removed = c.getInventoryController().discardMultipleCandies(slots);
+        Ui.message(this, removed + " candy item(s) discarded.");
         refresh();
     }
 
     public void refresh() {
-
         model.clear();
 
-        ArrayList<Candy> candies =
-            c.getInventoryController().getCandies();
+        ArrayList<Candy> candies = c.getInventoryController().getCandies();
+        int count = c.getInventoryController().getCandyCount();
+        int capacity = c.getInventoryController().getCapacity();
 
-        int count =
-            c.getInventoryController().getCandyCount();
-
-        int capacity =
-            c.getInventoryController().getCapacity();
-
-        inventoryStatus.setText(
-            count + " / " + capacity + " CANDIES"
-        );
+        countLabel.setText("🎒  " + count + " / " + capacity);
 
         for (int i = 0; i < candies.size(); i++) {
-
             Candy candy = candies.get(i);
-
-            model.addElement(
-                "  SLOT " + (i + 1) +
-                "     |     " + candy.getCandyType() +
-                "     —     " + candy.getCandyFlavor()
-            );
+            model.addElement("🍬   SLOT " + (i + 1) + "     "
+                + candy.getCandyType() + "  —  " + candy.getCandyFlavor());
         }
 
-        if (candies.isEmpty()) {
-            model.addElement("  Your inventory is currently empty.");
-        }
+        if (candies.isEmpty()) model.addElement("Your inventory is empty.");
 
-        selectionStatus.setText(
-            "Select one or more candies to discard."
-        );
-
+        selectionStatus.setText("Select candies to discard.");
         list.clearSelection();
     }
 }
