@@ -42,9 +42,11 @@ public class MainFrame extends JFrame {
         root.add(gameplay, "game");
         root.add(leaderboard, "leaderboard");
 
+        root.setBackground(Ui.BACKGROUND);
+
         setContentPane(root);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(900, 650));
+        setMinimumSize(new Dimension(1050, 700));
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
 
@@ -71,11 +73,12 @@ public class MainFrame extends JFrame {
     public void startGame(String name) {
         controller.startGame(name);
         gameplay.refreshAll();
+        gameplay.showWorld();
         cards.show(root, "game");
     }
 
     public void showMessage(String message) {
-        JOptionPane.showMessageDialog(this, message);
+        Ui.message(this, message);
     }
 
     public void endSession() {

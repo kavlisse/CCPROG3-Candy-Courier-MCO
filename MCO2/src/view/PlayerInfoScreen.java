@@ -1,26 +1,40 @@
+
 package view;
 
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
 import controller.GameController;
 import model.Player;
 
 class PlayerInfoScreen extends JPanel {
+
     private final GameController c;
     private final JPanel details = new JPanel();
 
     PlayerInfoScreen(GameController c) {
         this.c = c;
-        setLayout(new BorderLayout(12, 12));
+
+        setLayout(new BorderLayout(18, 18));
         setBackground(Ui.CREAM);
-        setBorder(new EmptyBorder(18, 20, 18, 20));
+        setBorder(new EmptyBorder(25, 28, 25, 28));
 
-        add(Ui.heading("Courier Profile"), BorderLayout.NORTH);
+        JPanel header = new JPanel();
+        header.setOpaque(false);
+        header.setLayout(new BoxLayout(
+            header, BoxLayout.Y_AXIS
+        ));
 
-        details.setBackground(Ui.WHITE);
-        details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));
-        details.setBorder(new EmptyBorder(22, 26, 22, 26));
+        header.add(Ui.eyebrow("YOUR CHARACTER"));
+        header.add(Box.createVerticalStrut(5));
+        header.add(Ui.heading("Courier Profile"));
+
+        add(header, BorderLayout.NORTH);
+
+        details.setBackground(Ui.CREAM);
+        details.setLayout(new GridLayout(0, 2, 14, 14));
+
         add(details, BorderLayout.CENTER);
 
         refresh();
@@ -28,44 +42,114 @@ class PlayerInfoScreen extends JPanel {
 
     public void refresh() {
         details.removeAll();
+
         Player p = c.getGame().getPlayer();
 
         if (p == null) {
             details.add(Ui.heading("No courier yet"));
         } else {
-            addLine("🧑  Courier", p.getName());
-            addLine("★  Star rank", String.valueOf(p.getStarRank()));
-            addLine("✦  Experience", p.getTotalXP() + " XP");
-            addLine("⬆  Next rank", p.getXPNeededForNextRank() + " XP");
-            addLine("👣  Steps taken", String.valueOf(p.getTotalSteps()));
-            addLine("🎒  Inventory", p.getInventory().getCandyCount()
+            JPanel identity = Ui.darkCard();
+            identity.setLayout(new BoxLayout(
+                identity, BoxLayout.Y_AXIS
+            ));
+
+            JLabel avatar = new JLabel("🧑‍🍬");
+            avatar.setFont(new Font(
+                "Segoe UI Emoji", Font.PLAIN, 42
+            ));
+
+            JLabel name = new JLabel(p.getName());
+            name.setFont(new Font(
+                "Segoe UI", Font.BOLD, 24
+            ));
+            name.setForeground(Color.WHITE);
+
+            JLabel rank = new JLabel(
+                "STAR RANK  " + p.getStarRank()
+            );
+            rank.setFont(new Font(
+                "Segoe UI", Font.BOLD, 11
+            ));
+            rank.setForeground(Ui.PINK);
+
+            identity.add(avatar);
+            identity.add(Box.createVerticalStrut(10));
+            identity.add(name);
+            identity.add(Box.createVerticalStrut(5));
+            identity.add(rank);
+
+            details.add(identity);
+
+            addStat("✦", "TOTAL EXPERIENCE",
+                p.getTotalXP() + " XP");
+
+            addStat("★", "STAR RANK",
+                String.valueOf(p.getStarRank()));
+
+            addStat("⬆", "XP TO NEXT RANK",
+                String.valueOf(p.getXPNeededForNextRank()));
+
+            addStat("👣", "TOTAL STEPS",
+                String.valueOf(p.getTotalSteps()));
+
+            addStat("🎒", "INVENTORY",
+                p.getInventory().getCandyCount()
                 + " / " + p.getInventory().getCapacity());
-            addLine("🗺  World", c.getGame().getWorld().getGridSize()
-                + " × " + c.getGame().getWorld().getGridSize());
-            addLine("📍  Location", "Row " + (p.getRow() + 1)
+
+            addStat("🗺", "WORLD SIZE",
+                c.getGame().getWorld().getGridSize()
+                + " × "
+                + c.getGame().getWorld().getGridSize());
+
+            addStat("📍", "CURRENT LOCATION",
+                "Row " + (p.getRow() + 1)
                 + ", Column " + (p.getColumn() + 1));
-            addLine("↗  Diagonal movement",
-                p.canMoveDiagonally() ? "Unlocked" : "Locked");
+
+            addStat("↗", "DIAGONAL MOVEMENT",
+                p.canMoveDiagonally()
+                ? "Unlocked"
+                : "Locked");
         }
 
         details.revalidate();
         details.repaint();
     }
 
-    private void addLine(String label, String value) {
-        JPanel row = new JPanel(new BorderLayout(12, 8));
-        row.setBackground(Ui.WHITE);
-        row.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(0, 0, 1, 0, Ui.BORDER),
-            new EmptyBorder(12, 4, 12, 4)));
+    private void addStat(
+        String icon,
+        String title,
+        String value
+    ) {
+        JPanel card = Ui.card();
+        card.setLayout(new BorderLayout(10, 8));
 
-        JLabel l = Ui.label(label);
-        JLabel v = Ui.label(value);
-        v.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        v.setForeground(Ui.DARK);
+        JLabel symbol = new JLabel(icon);
+        symbol.setFont(new Font(
+            "Segoe UI Emoji", Font.PLAIN, 25
+        ));
+        symbol.setForeground(Ui.BERRY);
 
-        row.add(l, BorderLayout.WEST);
-        row.add(v, BorderLayout.EAST);
-        details.add(row);
+        JPanel text = new JPanel();
+        text.setOpaque(false);
+        text.setLayout(new BoxLayout(
+            text, BoxLayout.Y_AXIS
+        ));
+
+        JLabel heading = Ui.eyebrow(title);
+
+        JLabel number = new JLabel(value);
+        number.setFont(new Font(
+            "Segoe UI", Font.BOLD, 19
+        ));
+        number.setForeground(Ui.DARK);
+
+        text.add(heading);
+        text.add(Box.createVerticalStrut(7));
+        text.add(number);
+
+        card.add(symbol, BorderLayout.WEST);
+        card.add(text, BorderLayout.CENTER);
+
+        details.add(card);
     }
 }

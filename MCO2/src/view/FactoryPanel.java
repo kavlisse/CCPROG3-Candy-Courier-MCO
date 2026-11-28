@@ -12,19 +12,20 @@ import model.Candy;
 
 public class FactoryPanel {
 
-    private FactoryPanel() {
-    }
+    private FactoryPanel() {}
 
     public static void showDialog(
-            Component parent,
-            GameController c,
-            Factory factory) {
-
+        Component parent,
+        GameController c,
+        Factory factory
+    ) {
         Candy[][] candies =
             c.getFactoryController().getProductionGrid(factory);
 
-        if (candies == null || candies.length == 0) {
-            Ui.message(parent, "This factory has no production grid.");
+        if (candies == null || candies.length == 0
+                || candies[0] == null) {
+            Ui.message(parent,
+                "This factory has no production grid.");
             return;
         }
 
@@ -36,53 +37,75 @@ public class FactoryPanel {
 
         JDialog dialog = new JDialog(
             SwingUtilities.getWindowAncestor(parent),
-            factory.getName() + " — Production",
+            factory.getName(),
             Dialog.ModalityType.APPLICATION_MODAL
         );
 
-        JPanel panel = new JPanel(new BorderLayout(16, 16));
-        panel.setBackground(Ui.CREAM);
-        panel.setBorder(new EmptyBorder(22, 24, 20, 24));
+        JPanel root = new JPanel(new BorderLayout(18, 18));
+        root.setBackground(Ui.CREAM);
+        root.setBorder(new EmptyBorder(24, 26, 22, 26));
 
-        // HEADER
-        JLabel title = Ui.heading(factory.getName());
-        title.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
 
-        JLabel subtitle = Ui.label(
+        JPanel titleGroup = new JPanel();
+        titleGroup.setOpaque(false);
+        titleGroup.setLayout(new BoxLayout(
+            titleGroup, BoxLayout.Y_AXIS
+        ));
+
+        titleGroup.add(Ui.eyebrow("CANDY PRODUCTION"));
+        titleGroup.add(Box.createVerticalStrut(5));
+        titleGroup.add(Ui.heading(factory.getName()));
+        titleGroup.add(Box.createVerticalStrut(5));
+
+        JLabel subtitle = Ui.smallLabel(
             "Select the candies you want to collect."
         );
+        titleGroup.add(subtitle);
+
+        JLabel factoryIcon = new JLabel("🏭");
+        factoryIcon.setFont(new Font(
+            "Segoe UI Emoji", Font.PLAIN, 42
+        ));
+
+        header.add(titleGroup, BorderLayout.CENTER);
+        header.add(factoryIcon, BorderLayout.EAST);
+
+        root.add(header, BorderLayout.NORTH);
+
+        JPanel center = new JPanel(new BorderLayout(10, 12));
+        center.setOpaque(false);
+
+        JPanel inventoryCard = Ui.accentCard();
+        inventoryCard.setLayout(new BorderLayout());
 
         JLabel inventoryStatus = Ui.label("");
-        inventoryStatus.setFont(Ui.BODY);
+        inventoryStatus.setFont(new Font(
+            "Segoe UI", Font.BOLD, 13
+        ));
 
-        JPanel header = new JPanel();
-        header.setOpaque(false);
-        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+        inventoryCard.add(
+            inventoryStatus,
+            BorderLayout.CENTER
+        );
 
-        title.setAlignmentX(Component.LEFT_ALIGNMENT);
-        subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-        inventoryStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
+        center.add(inventoryCard, BorderLayout.NORTH);
 
-        header.add(title);
-        header.add(Box.createVerticalStrut(6));
-        header.add(subtitle);
-        header.add(Box.createVerticalStrut(12));
-        header.add(inventoryStatus);
-
-        panel.add(header, BorderLayout.NORTH);
-
-        // CANDY GRID
         JPanel grid = new JPanel(
-            new GridLayout(rows, columns, 8, 8)
+            new GridLayout(rows, columns, 10, 10)
         );
         grid.setBackground(Ui.CREAM);
 
         JLabel status = Ui.smallLabel(
-            "Choose the candies you want to collect."
+            "Select one or more available candies."
         );
 
-        JButton collectButton = Ui.button("COLLECT SELECTED");
-        JButton closeButton = Ui.secondaryButton("CLOSE");
+        JButton collectButton =
+            Ui.button("COLLECT SELECTED  →");
+
+        JButton closeButton =
+            Ui.secondaryButton("CLOSE");
 
         Runnable updateStatus = () -> {
             int inventoryCount =
@@ -95,15 +118,15 @@ public class FactoryPanel {
 
             for (int r = 0; r < rows; r++) {
                 for (int col = 0; col < columns; col++) {
-                    if (selected[r][col]) {
-                        selectedCount++;
-                    }
+                    if (selected[r][col]) selectedCount++;
                 }
             }
 
             inventoryStatus.setText(
-                "Inventory: " + inventoryCount + " / " + capacity
-                + "     •     Selected: " + selectedCount
+                "INVENTORY   " + inventoryCount
+                + " / " + capacity
+                + "       •       "
+                + selectedCount + " SELECTED"
             );
 
             collectButton.setEnabled(selectedCount > 0);
@@ -119,60 +142,91 @@ public class FactoryPanel {
 
                 JButton button = new JButton();
 
-                button.setFont(Ui.BUTTON);
-                button.setForeground(Ui.DARK);
-                button.setBackground(Ui.BLUSH);
+                button.setLayout(new BorderLayout(3, 5));
+                button.setBackground(Color.WHITE);
                 button.setOpaque(true);
                 button.setFocusPainted(false);
-                button.setCursor(
-                    Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
-                );
+                button.setCursor(Cursor.getPredefinedCursor(
+                    Cursor.HAND_CURSOR
+                ));
 
-                button.setPreferredSize(new Dimension(120, 82));
+                button.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Ui.BORDER),
+                    new EmptyBorder(9, 5, 9, 5)
+                ));
+
+                button.setPreferredSize(
+                    new Dimension(135, 95)
+                );
 
                 candyButtons[r][col] = button;
 
                 if (candy == null) {
                     button.setText("EMPTY");
+                    button.setFont(Ui.SMALL);
                     button.setForeground(Ui.MUTED);
-                    button.setBackground(Ui.CREAM);
+                    button.setBackground(
+                        new Color(242, 237, 241)
+                    );
                     button.setEnabled(false);
-                    button.setBorder(
-                        BorderFactory.createLineBorder(Ui.BORDER)
-                    );
-                } else {
-                    button.setText(
-                        "<html><center>"
-                        + candy.getCandyType()
-                        + "<br>"
-                        + candy.getCandyFlavor()
-                        + "</center></html>"
-                    );
 
-                    button.setBorder(
-                        BorderFactory.createCompoundBorder(
-                            BorderFactory.createLineBorder(
-                                Ui.BORDER, 1
-                            ),
-                            new EmptyBorder(8, 6, 8, 6)
-                        )
+                } else {
+                    JLabel icon = new JLabel(
+                        "🍬", SwingConstants.CENTER
                     );
+                    icon.setFont(new Font(
+                        "Segoe UI Emoji", Font.PLAIN, 25
+                    ));
+
+                    JLabel type = new JLabel(
+                        candy.getCandyType(),
+                        SwingConstants.CENTER
+                    );
+                    type.setFont(new Font(
+                        "Segoe UI", Font.BOLD, 12
+                    ));
+                    type.setForeground(Ui.DARK);
+
+                    JLabel flavor = new JLabel(
+                        candy.getCandyFlavor(),
+                        SwingConstants.CENTER
+                    );
+                    flavor.setFont(new Font(
+                        "Segoe UI", Font.PLAIN, 10
+                    ));
+                    flavor.setForeground(Ui.MUTED);
+
+                    JPanel details = new JPanel();
+                    details.setOpaque(false);
+                    details.setLayout(new BoxLayout(
+                        details, BoxLayout.Y_AXIS
+                    ));
+
+                    details.add(icon);
+                    details.add(type);
+                    details.add(flavor);
+
+                    button.add(details, BorderLayout.CENTER);
 
                     button.addActionListener(e -> {
-                        selected[rr][cc] = !selected[rr][cc];
+                        selected[rr][cc] =
+                            !selected[rr][cc];
 
                         button.setBackground(
                             selected[rr][cc]
-                                ? Ui.PINK
-                                : Ui.BLUSH
+                                ? Ui.LAVENDER
+                                : Color.WHITE
                         );
 
                         button.setBorder(
-                            BorderFactory.createLineBorder(
-                                selected[rr][cc]
-                                    ? Ui.BERRY
-                                    : Ui.BORDER,
-                                selected[rr][cc] ? 3 : 1
+                            BorderFactory.createCompoundBorder(
+                                BorderFactory.createLineBorder(
+                                    selected[rr][cc]
+                                        ? Ui.BERRY
+                                        : Ui.BORDER,
+                                    selected[rr][cc] ? 2 : 1
+                                ),
+                                new EmptyBorder(9, 5, 9, 5)
                             )
                         );
 
@@ -184,37 +238,31 @@ public class FactoryPanel {
             }
         }
 
-        JScrollPane scrollPane = new JScrollPane(grid);
-        scrollPane.setBorder(
-            BorderFactory.createLineBorder(Ui.BORDER)
-        );
-        scrollPane.getViewport().setBackground(Ui.CREAM);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(18);
-        scrollPane.setHorizontalScrollBarPolicy(
-            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
-        );
+        JScrollPane scroll = new JScrollPane(grid);
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.getViewport().setBackground(Ui.CREAM);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
 
-        panel.add(scrollPane, BorderLayout.CENTER);
+        center.add(scroll, BorderLayout.CENTER);
+        root.add(center, BorderLayout.CENTER);
 
-        // FOOTER
         JPanel footer = new JPanel(new BorderLayout(8, 12));
         footer.setOpaque(false);
 
         footer.add(status, BorderLayout.NORTH);
 
-        JPanel buttons = new JPanel(
-            new FlowLayout(FlowLayout.RIGHT, 10, 0)
+        JPanel actions = new JPanel(
+            new FlowLayout(FlowLayout.RIGHT, 9, 0)
         );
-        buttons.setOpaque(false);
+        actions.setOpaque(false);
 
-        buttons.add(collectButton);
-        buttons.add(closeButton);
+        actions.add(collectButton);
+        actions.add(closeButton);
 
-        footer.add(buttons, BorderLayout.SOUTH);
+        footer.add(actions, BorderLayout.SOUTH);
 
-        panel.add(footer, BorderLayout.SOUTH);
+        root.add(footer, BorderLayout.SOUTH);
 
-        // COLLECT SELECTED CANDIES
         collectButton.addActionListener(e -> {
             ArrayList<int[]> positions = new ArrayList<>();
 
@@ -243,36 +291,70 @@ public class FactoryPanel {
 
                     selected[r][col] = false;
 
-                    Candy updatedCandy = updatedGrid[r][col];
+                    Candy updated = updatedGrid[r][col];
                     JButton button = candyButtons[r][col];
 
-                    if (updatedCandy == null) {
-                        button.setText("EMPTY");
-                        button.setEnabled(false);
-                        button.setBackground(Ui.CREAM);
-                        button.setForeground(Ui.MUTED);
-                    } else {
-                        button.setText(
-                            "<html><center>"
-                            + updatedCandy.getCandyType()
-                            + "<br>"
-                            + updatedCandy.getCandyFlavor()
-                            + "</center></html>"
-                        );
+                    button.removeAll();
 
+                    if (updated == null) {
+                        button.setText("EMPTY");
+                        button.setFont(Ui.SMALL);
+                        button.setForeground(Ui.MUTED);
+                        button.setBackground(
+                            new Color(242, 237, 241)
+                        );
+                        button.setEnabled(false);
+
+                    } else {
+                        JLabel icon = new JLabel(
+                            "🍬", SwingConstants.CENTER
+                        );
+                        icon.setFont(new Font(
+                            "Segoe UI Emoji", Font.PLAIN, 25
+                        ));
+
+                        JLabel type = new JLabel(
+                            updated.getCandyType(),
+                            SwingConstants.CENTER
+                        );
+                        type.setFont(new Font(
+                            "Segoe UI", Font.BOLD, 12
+                        ));
+
+                        JLabel flavor = new JLabel(
+                            updated.getCandyFlavor(),
+                            SwingConstants.CENTER
+                        );
+                        flavor.setFont(Ui.SMALL);
+                        flavor.setForeground(Ui.MUTED);
+
+                        JPanel details = new JPanel();
+                        details.setOpaque(false);
+                        details.setLayout(new BoxLayout(
+                            details, BoxLayout.Y_AXIS
+                        ));
+
+                        details.add(icon);
+                        details.add(type);
+                        details.add(flavor);
+
+                        button.setText(null);
+                        button.add(details, BorderLayout.CENTER);
                         button.setEnabled(true);
-                        button.setBackground(Ui.BLUSH);
-                        button.setForeground(Ui.DARK);
+                        button.setBackground(Color.WHITE);
                     }
 
                     button.setBorder(
-                        BorderFactory.createLineBorder(Ui.BORDER, 1)
+                        BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(Ui.BORDER),
+                            new EmptyBorder(9, 5, 9, 5)
+                        )
                     );
                 }
             }
 
             status.setText(
-                collected + " candy item(s) successfully collected!"
+                collected + " candy item(s) collected!"
             );
 
             updateStatus.run();
@@ -280,26 +362,21 @@ public class FactoryPanel {
             grid.revalidate();
             grid.repaint();
 
-            if (collected > 0) {
-                Ui.message(
-                    dialog,
-                    collected + " candy item(s) added to your inventory!"
-                );
-            } else {
-                Ui.message(
-                    dialog,
-                    "No candies were collected. Check your inventory capacity."
-                );
-            }
+            Ui.message(
+                dialog,
+                collected > 0
+                    ? collected + " candy item(s) added to your inventory!"
+                    : "No candies were collected. Check your inventory capacity."
+            );
         });
 
         closeButton.addActionListener(e -> dialog.dispose());
 
         updateStatus.run();
 
-        dialog.setContentPane(panel);
-        dialog.setSize(850, 680);
-        dialog.setMinimumSize(new Dimension(650, 520));
+        dialog.setContentPane(root);
+        dialog.setSize(850, 650);
+        dialog.setMinimumSize(new Dimension(650, 500));
         dialog.setResizable(true);
         dialog.setLocationRelativeTo(parent);
         dialog.setVisible(true);

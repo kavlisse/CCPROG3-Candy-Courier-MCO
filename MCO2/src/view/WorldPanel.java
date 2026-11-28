@@ -13,40 +13,115 @@ public class WorldPanel extends JPanel {
     private final GameController controller;
     private final JPanel grid = new JPanel();
 
-    private static final Color GRASS = new Color(91, 155, 83);
-    private static final Color FACTORY = new Color(238, 180, 202);
-    private static final Color HOUSE = new Color(190, 178, 225);
-    private static final Color HOME = new Color(239, 205, 145);
-    private static final Color PLAYER = new Color(75, 45, 100);
-    private static final Color BACKGROUND = new Color(28, 35, 31);
+    private static final Color GRASS =
+        new Color(119, 176, 111);
 
-    public WorldPanel(GamePanel parent, GameController controller) {
+    private static final Color FACTORY =
+        new Color(245, 190, 211);
+
+    private static final Color HOUSE =
+        new Color(216, 204, 241);
+
+    private static final Color HOME =
+        new Color(248, 219, 169);
+
+    private static final Color PLAYER =
+        new Color(81, 47, 96);
+
+    private static final Color BACKGROUND =
+        new Color(29, 21, 38);
+
+    private static final Color ICON_DARK =
+        new Color(81, 47, 96);
+
+    public WorldPanel(
+        GamePanel parent,
+        GameController controller
+    ) {
         this.parent = parent;
         this.controller = controller;
 
-        setLayout(new GridBagLayout());
+        setLayout(new BorderLayout());
         setBackground(BACKGROUND);
 
-        grid.setBackground(BACKGROUND);
+        setBorder(BorderFactory.createEmptyBorder(
+            18, 18, 18, 18
+        ));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(8, 8, 8, 8);
+        // HEADER
 
-        add(grid, gbc);
-    }
+        JPanel heading = new JPanel(new BorderLayout());
+        heading.setOpaque(false);
 
-    @Override
-    public void doLayout() {
-        super.doLayout();
-        grid.revalidate();
+        heading.setBorder(BorderFactory.createEmptyBorder(
+            0, 4, 15, 4
+        ));
+
+        JLabel title = new JLabel("WORLD MAP");
+        title.setFont(new Font(
+            "Segoe UI", Font.BOLD, 21
+        ));
+        title.setForeground(Color.WHITE);
+
+        JLabel subtitle = new JLabel(
+            "Explore locations and complete delivery quests."
+        );
+
+        subtitle.setFont(Ui.SMALL);
+        subtitle.setForeground(
+            new Color(184, 166, 190)
+        );
+
+        JPanel headingText = new JPanel();
+        headingText.setOpaque(false);
+
+        headingText.setLayout(new BoxLayout(
+            headingText, BoxLayout.Y_AXIS
+        ));
+
+        headingText.add(title);
+        headingText.add(Box.createVerticalStrut(4));
+        headingText.add(subtitle);
+
+        heading.add(
+            headingText,
+            BorderLayout.WEST
+        );
+
+        // MAP GRID
+
+        grid.setOpaque(false);
+
+        JPanel mapContainer = new JPanel(
+            new BorderLayout()
+        );
+
+        mapContainer.setBackground(
+            new Color(39, 52, 42)
+        );
+
+        mapContainer.setBorder(
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(
+                    new Color(75, 89, 72), 1
+                ),
+                BorderFactory.createEmptyBorder(
+                    7, 7, 7, 7
+                )
+            )
+        );
+
+        mapContainer.add(
+            grid,
+            BorderLayout.CENTER
+        );
+
+        add(heading, BorderLayout.NORTH);
+        add(mapContainer, BorderLayout.CENTER);
     }
 
     public void refresh() {
+
         grid.removeAll();
 
         Player p = controller.getGame().getPlayer();
@@ -60,71 +135,150 @@ public class WorldPanel extends JPanel {
 
         int n = w.getGridSize();
 
-        grid.setLayout(new GridLayout(n, n, 3, 3));
+        grid.setLayout(
+            new GridLayout(n, n, 5, 5)
+        );
 
         for (int r = 0; r < n; r++) {
+
             for (int col = 0; col < n; col++) {
 
-                Building building = w.getBuildingAt(r, col);
+                Building building =
+                    w.getBuildingAt(r, col);
 
                 boolean isPlayer =
-                    p.getRow() == r && p.getColumn() == col;
+                    p.getRow() == r &&
+                    p.getColumn() == col;
 
                 Color tileColor = GRASS;
-                String type = "empty";
+
+                int iconType = MapIcon.NONE;
+
                 String name = "";
 
-                if (building instanceof Factory) {
+                // BUILDING TYPES
+
+                // Check PlayerHome first in case
+                // it inherits from House.
+
+                if (building instanceof PlayerHome) {
+
+                    tileColor = HOME;
+                    iconType = MapIcon.HOME;
+                    name = building.getName();
+
+                } else if (building instanceof Factory) {
+
                     tileColor = FACTORY;
-                    type = "factory";
+                    iconType = MapIcon.FACTORY;
                     name = building.getName();
 
                 } else if (building instanceof House) {
-                    tileColor = HOUSE;
-                    type = "house";
-                    name = building.getName();
 
-                } else if (building instanceof PlayerHome) {
-                    tileColor = HOME;
-                    type = "home";
+                    tileColor = HOUSE;
+                    iconType = MapIcon.HOUSE;
                     name = building.getName();
                 }
 
+                // PLAYER OVERRIDES LOCATION ICON
+
                 if (isPlayer) {
+
                     tileColor = PLAYER;
-                    type = "player";
+                    iconType = MapIcon.PLAYER;
                     name = p.getName();
                 }
 
+                // CREATE TILE
+
                 JButton tile = new JButton();
-                tile.setLayout(new BorderLayout(2, 2));
+
+                tile.setLayout(
+                    new BorderLayout(2, 4)
+                );
+
                 tile.setBackground(tileColor);
                 tile.setOpaque(true);
+
                 tile.setFocusPainted(false);
-                tile.setMargin(new Insets(2, 2, 2, 2));
+                tile.setContentAreaFilled(true);
+                tile.setBorderPainted(true);
 
-                tile.setBorder(BorderFactory.createLineBorder(
-                    new Color(225, 225, 225), 2
-                ));
-
-                JLabel icon = new JLabel(
-                    new TileIcon(type), SwingConstants.CENTER
+                tile.setCursor(
+                    Cursor.getPredefinedCursor(
+                        Cursor.HAND_CURSOR
+                    )
                 );
 
-                JLabel label = new JLabel(name, SwingConstants.CENTER);
-                label.setFont(new Font("Segoe UI", Font.BOLD, 11));
-                label.setForeground(
-                    isPlayer ? Color.WHITE : new Color(45, 38, 48)
+                tile.setMargin(
+                    new Insets(8, 5, 8, 5)
                 );
 
-                tile.add(icon, BorderLayout.CENTER);
-                tile.add(label, BorderLayout.SOUTH);
+                tile.setBorder(
+                    BorderFactory.createLineBorder(
+                        new Color(255, 255, 255, 125),
+                        2
+                    )
+                );
+
+                // ONLY DISPLAY ICONS FOR ACTUAL OBJECTS
+
+                if (iconType != MapIcon.NONE) {
+
+                    MapIcon icon = new MapIcon(iconType);
+
+                    tile.add(
+                        icon,
+                        BorderLayout.CENTER
+                    );
+
+                    JLabel label = new JLabel(
+                        name,
+                        SwingConstants.CENTER
+                    );
+
+                    label.setFont(new Font(
+                        "Segoe UI", Font.BOLD, 10
+                    ));
+
+                    label.setForeground(
+                        isPlayer
+                            ? Color.WHITE
+                            : ICON_DARK
+                    );
+
+                    tile.add(
+                        label,
+                        BorderLayout.SOUTH
+                    );
+                }
+
+                // PLAYER HIGHLIGHT
+
+                if (isPlayer) {
+
+                    tile.setBorder(
+                        BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(
+                                Ui.GOLD, 3
+                            ),
+                            BorderFactory.createEmptyBorder(
+                                7, 4, 7, 4
+                            )
+                        )
+                    );
+                }
+
+                // INTERACTION
 
                 final int row = r;
                 final int column = col;
 
                 tile.addActionListener(e -> {
-                    if (p.getRow() == row && p.getColumn() == column) {
+
+                    if (p.getRow() == row
+                            && p.getColumn() == column) {
+
                         parent.interactCurrentLocation();
                     }
                 });
@@ -137,87 +291,213 @@ public class WorldPanel extends JPanel {
         grid.repaint();
     }
 
-    private static class TileIcon implements Icon {
+    // ==========================================
+    // CUSTOM DRAWN MAP ICONS
+    // ==========================================
 
-        private final String type;
+    private static class MapIcon extends JComponent {
 
-        TileIcon(String type) {
+        static final int NONE = 0;
+        static final int FACTORY = 1;
+        static final int HOUSE = 2;
+        static final int HOME = 3;
+        static final int PLAYER = 4;
+
+        private final int type;
+
+        MapIcon(int type) {
+
             this.type = type;
+
+            setPreferredSize(
+                new Dimension(44, 44)
+            );
+
+            setMinimumSize(
+                new Dimension(35, 35)
+            );
+
+            setOpaque(false);
         }
 
         @Override
-        public int getIconWidth() {
-            return 42;
-        }
+        protected void paintComponent(Graphics g) {
 
-        @Override
-        public int getIconHeight() {
-            return 42;
-        }
+            super.paintComponent(g);
 
-        @Override
-        public void paintIcon(Component c, Graphics g, int x, int y) {
-            Graphics2D g2 = (Graphics2D) g.create();
+            Graphics2D g2 =
+                (Graphics2D) g.create();
 
             g2.setRenderingHint(
                 RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON
             );
 
+            int cx = getWidth() / 2;
+            int cy = getHeight() / 2;
+
             switch (type) {
-                case "factory":
-                    g2.setColor(new Color(100, 55, 75));
-                    g2.fillRect(x + 7, y + 16, 28, 21);
-                    g2.fillPolygon(
-                        new int[]{
-                            x + 7, x + 16, x + 16,
-                            x + 25, x + 25, x + 35
-                        },
-                        new int[]{
-                            y + 16, y + 8, y + 16,
-                            y + 8, y + 16, y + 16
-                        },
-                        6
-                    );
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(x + 12, y + 24, 5, 7);
-                    g2.fillRect(x + 24, y + 24, 5, 7);
+
+                case FACTORY:
+                    drawFactory(g2, cx, cy);
                     break;
 
-                case "house":
-                case "home":
-                    g2.setColor(type.equals("home")
-                        ? new Color(115, 76, 35)
-                        : new Color(85, 65, 125));
-
-                    g2.fillPolygon(
-                        new int[]{x + 5, x + 21, x + 37},
-                        new int[]{y + 20, y + 5, y + 20},
-                        3
-                    );
-                    g2.fillRect(x + 10, y + 19, 22, 19);
-
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(x + 18, y + 25, 7, 13);
+                case HOUSE:
+                case HOME:
+                    drawHouse(g2, cx, cy);
                     break;
 
-                case "player":
-                    g2.setColor(new Color(255, 220, 165));
-                    g2.fillOval(x + 13, y + 3, 16, 16);
-
-                    g2.setColor(new Color(245, 190, 75));
-                    g2.fillRoundRect(x + 9, y + 19, 24, 20, 8, 8);
-
-                    g2.setColor(Color.WHITE);
-                    g2.fillRect(x + 14, y + 25, 14, 5);
+                case PLAYER:
+                    drawPlayer(g2, cx, cy);
                     break;
-
-                default:
-                    g2.setColor(new Color(115, 170, 105));
-                    g2.fillOval(x + 15, y + 15, 12, 12);
             }
 
             g2.dispose();
+        }
+
+        // FACTORY ICON
+
+        private void drawFactory(
+            Graphics2D g2,
+            int cx,
+            int cy
+        ) {
+
+            g2.setColor(ICON_DARK);
+
+            // Main building
+
+            g2.fillRoundRect(
+                cx - 15, cy - 1,
+                29, 19,
+                3, 3
+            );
+
+            // Left chimney
+
+            g2.fillRect(
+                cx - 13, cy - 17,
+                6, 18
+            );
+
+            // Center chimney
+
+            g2.fillRect(
+                cx - 3, cy - 12,
+                6, 13
+            );
+
+            // Windows
+
+            g2.setColor(Ui.PINK);
+
+            g2.fillRect(
+                cx - 10, cy + 5,
+                4, 5
+            );
+
+            g2.fillRect(
+                cx, cy + 5,
+                4, 5
+            );
+
+            g2.fillRect(
+                cx + 8, cy + 5,
+                4, 5
+            );
+
+            // Chimney detail
+
+            g2.setColor(Ui.GOLD);
+
+            g2.fillRect(
+                cx - 11, cy - 14,
+                2, 3
+            );
+
+            g2.fillRect(
+                cx - 1, cy - 9,
+                2, 3
+            );
+        }
+
+        // HOUSE ICON
+
+        private void drawHouse(
+            Graphics2D g2,
+            int cx,
+            int cy
+        ) {
+
+            g2.setColor(ICON_DARK);
+
+            // Roof
+
+            Polygon roof = new Polygon();
+
+            roof.addPoint(cx - 19, cy - 1);
+            roof.addPoint(cx, cy - 19);
+            roof.addPoint(cx + 19, cy - 1);
+
+            g2.fillPolygon(roof);
+
+            // House body
+
+            g2.fillRoundRect(
+                cx - 13, cy - 2,
+                26, 21,
+                3, 3
+            );
+
+            // Door
+
+            g2.setColor(Ui.LAVENDER);
+
+            g2.fillRoundRect(
+                cx - 4, cy + 7,
+                8, 12,
+                2, 2
+            );
+        }
+
+        // PLAYER ICON
+
+        private void drawPlayer(
+            Graphics2D g2,
+            int cx,
+            int cy
+        ) {
+
+            // Head
+
+            g2.setColor(
+                new Color(255, 218, 157)
+            );
+
+            g2.fillOval(
+                cx - 9, cy - 19,
+                18, 18
+            );
+
+            // Body
+
+            g2.setColor(Ui.GOLD);
+
+            g2.fillRoundRect(
+                cx - 13, cy,
+                26, 19,
+                7, 7
+            );
+
+            // Shirt detail
+
+            g2.setColor(Color.WHITE);
+
+            g2.fillRoundRect(
+                cx - 5, cy + 4,
+                10, 9,
+                3, 3
+            );
         }
     }
 }
