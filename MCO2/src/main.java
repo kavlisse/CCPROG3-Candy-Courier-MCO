@@ -28,7 +28,7 @@ import persistence.LeaderboardFileHandler;
  * @author Katelyn and Shaira
  * @version 1.0
  */
-public class Main {
+public class main {
 
     public static void main(String[] args) {
 

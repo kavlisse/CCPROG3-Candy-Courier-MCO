@@ -1,3 +1,4 @@
+
 package view;
 
 import java.awt.*;
@@ -21,6 +22,7 @@ public class GamePanel extends JPanel {
     private final InventoryPanel inventoryPanel;
     private final OrdersPanel ordersPanel;
     private final CandySearchPanel searchPanel;
+    private final PlayerInfoScreen playerScreen;
 
     private final JLabel status =
         new JLabel("Welcome, courier!");
@@ -44,15 +46,13 @@ public class GamePanel extends JPanel {
         inventoryPanel = new InventoryPanel(controller);
         ordersPanel = new OrdersPanel(controller);
         searchPanel = new CandySearchPanel(controller);
+        playerScreen = new PlayerInfoScreen(controller);
 
         content.add(worldPanel, "world");
         content.add(inventoryPanel, "inventory");
         content.add(ordersPanel, "orders");
         content.add(searchPanel, "search");
-        content.add(
-            new PlayerInfoScreen(controller),
-            "player"
-        );
+        content.add(playerScreen, "player");
 
         add(playerInfo, BorderLayout.NORTH);
         add(new SidebarPanel(this), BorderLayout.WEST);
@@ -121,6 +121,8 @@ public class GamePanel extends JPanel {
             controller.getGame().getDayNum()
         );
 
+        playerScreen.refresh();
+
         worldPanel.refresh();
         inventoryPanel.refresh();
         ordersPanel.refresh();
@@ -147,6 +149,7 @@ public class GamePanel extends JPanel {
     }
 
     public void showPlayerInfo() {
+        playerScreen.refresh();
         contentCards.show(content, "player");
     }
 
